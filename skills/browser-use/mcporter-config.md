@@ -22,7 +22,7 @@ Expected entry:
     "chrome-devtools-mcp",
     "--auto-connect",
     "--userDataDir",
-    "/Users/steipete/Library/Application Support/Google/Chrome"
+    "/Users/paulcouach/Library/Application Support/Google/Chrome"
   ]
 }
 ```

@@ -1,0 +1,54 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "fileutils"
+require "time"
+
+ROOT = File.expand_path("..", __dir__)
+PROMPT_SRC = File.join(ROOT, "docs", "slash-commands")
+PROMPT_DEST = File.join(Dir.home, ".codex", "prompts")
+BACKUP_ROOT = File.join(Dir.home, ".codex", "backups", "agent-scripts")
+STAMP = Time.now.utc.strftime("%Y%m%dT%H%M%SZ")
+BACKUP_DIR = File.join(BACKUP_ROOT, STAMP, ".codex", "prompts")
+
+def prompt_sources
+  Dir.glob(File.join(PROMPT_SRC, "*.md")).sort.reject { |path| File.basename(path) == "README.md" }
+end
+
+def destination_for(path)
+  File.join(PROMPT_DEST, File.basename(path))
+end
+
+def same_file?(source, dest)
+  File.exist?(dest) && File.binread(source) == File.binread(dest)
+end
+
+unless ARGV.include?("--apply")
+  warn "Dry run. Re-run with --apply to copy prompts."
+  prompt_sources.each do |path|
+    dest = destination_for(path)
+    action = if same_file?(path, dest)
+      "already synced"
+    elsif File.exist?(dest)
+      "would back up and replace"
+    else
+      "would copy"
+    end
+    puts "#{action} #{path} -> #{dest}"
+  end
+  exit 0
+end
+
+FileUtils.mkdir_p(PROMPT_DEST)
+prompt_sources.each do |path|
+  dest = destination_for(path)
+  if File.exist?(dest) && !same_file?(path, dest)
+    FileUtils.mkdir_p(BACKUP_DIR)
+    FileUtils.cp(dest, File.join(BACKUP_DIR, File.basename(dest)), preserve: true)
+  end
+
+  FileUtils.cp(path, dest, preserve: true)
+end
+
+puts "synced prompts to #{PROMPT_DEST}"
+puts "backup: #{BACKUP_DIR}" if File.directory?(BACKUP_DIR)

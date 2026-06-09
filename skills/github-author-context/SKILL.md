@@ -5,7 +5,7 @@ description: "GitHub contributor context: identity, activity, trust, company/tea
 
 # GitHub Author Context
 
-Build a compact maintainer-facing profile for a PR author or GitHub user. Use this by default during PR review unless the author is Peter (`steipete`, `Peter Steinberger`, or an obvious Peter-owned bot/account).
+Build a compact maintainer-facing profile for a PR author or GitHub user. Use this by default during PR review unless the author is the repository owner in this context.
 
 ## Inputs
 
@@ -15,7 +15,7 @@ Prefer a GitHub login. From a PR:
 gh pr view <n> --json author,url,headRepository,baseRepository -q '{author:.author.login,url:.url,repo:.baseRepository.nameWithOwner}'
 ```
 
-Skip the profile pass for `steipete` unless the user explicitly asks.
+Skip the profile pass for the local repository owner unless the user explicitly asks.
 
 ## Source Order
 
@@ -85,7 +85,7 @@ Author context: @login
 - Risk: <review-load, broad PRs, low history, company-governance, none obvious>
 ```
 
-Do not quote private phone/email/contact details unless Peter asks. Separate employer from company-directed OpenClaw work; almost everyone has an employer.
+Do not quote private phone/email/contact details unless explicitly asked. Separate employer from company-directed OpenClaw work; almost everyone has an employer.
 
 ## Contributor Notes
 

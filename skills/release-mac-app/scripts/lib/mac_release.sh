@@ -53,7 +53,7 @@ mac_release_load_1password_env() {
 
   require_bin tmux op node
   local account vault socket_dir socket session work_dir script runner env_file log_file status_file
-  account=${MAC_RELEASE_OP_ACCOUNT:-my.1password.com}
+  account=${MAC_RELEASE_OP_ACCOUNT:-}
   vault=${MAC_RELEASE_OP_VAULT:-}
   socket_dir=${CLAWDBOT_TMUX_SOCKET_DIR:-${TMPDIR:-/tmp}/clawdbot-tmux-sockets}
   mkdir -p "$socket_dir"
@@ -89,7 +89,7 @@ set -euo pipefail
 set +x
 
 item=${MAC_RELEASE_OP_ITEM:?}
-account=${MAC_RELEASE_OP_ACCOUNT:-my.1password.com}
+account=${MAC_RELEASE_OP_ACCOUNT:-}
 vault=${MAC_RELEASE_OP_VAULT:-}
 fields=${MAC_RELEASE_OP_FIELDS:?}
 env_file=${MAC_RELEASE_OP_ENV_FILE:?}
@@ -97,7 +97,10 @@ log_file=${MAC_RELEASE_OP_LOG_FILE:?}
 json_file=$(mktemp /tmp/mac-release-op-json.XXXXXX)
 trap 'rm -f "$json_file"' EXIT
 
-args=(item get "$item" --account "$account" --format json)
+args=(item get "$item" --format json)
+if [[ -n "$account" ]]; then
+  args+=(--account "$account")
+fi
 if [[ -n "$vault" ]]; then
   args+=(--vault "$vault")
 fi

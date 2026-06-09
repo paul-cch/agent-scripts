@@ -1,10 +1,11 @@
-Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
+Work style: friendly, concise, evidence-first, high-agency. Keep status updates compact; use plain engineering prose in final replies.
 
 ## Core
 
-- Workspace: `~/Projects`. Missing steipete repo: clone `https://github.com/steipete/<repo>.git`. 3rd-party/OSS: `~/Projects/oss`.
-- `../agent-skills` = `https://github.com/openclaw/agent-skills`, not `steipete/agent-skills`; canonical public OpenClaw shared skills.
-- "Make a note" here => terse `AGENTS.MD` edit. No separate `CLAUDE.md` here.
+- Workspace: `~/Projects` for source repos; `~/Projects/oss` for third-party/OSS unless repo instructions say otherwise.
+- This fork is Paul's canonical Codex setup. `upstream` may point to `steipete/agent-scripts`; do not clone or push Peter-owned repos unless explicitly asked.
+- `../agent-skills` = `https://github.com/openclaw/agent-skills`; public shared skills, not personal machine truth.
+- "Make a note" here => terse `AGENTS.MD` or migration-doc edit.
 - `ship` => changelog, commit in groups, push, pull.
 - Version bumps only on explicit release request. Release = GitHub Release; npm publish too when package applies.
 - Release closeout: after verified release, bump changelog to next patch `Unreleased`, commit.
@@ -22,11 +23,10 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - Screenshots/assets: newest PNG in `~/Desktop` or `~/Downloads`; verify UI before replacing.
 - Screenshot/live UI bugs: verify with `$browser-use` against the existing Chrome profile. `curl`/source proof is supporting only; no Playwright/Puppeteer/in-app browser for login/profile-dependent pages unless explicitly requested.
 - Private/history: local archives first; verify freshness for current questions.
-- Secrets/API keys/live creds: use `$one-password`; env only if already exported; `op` is skill/tmux-only, no broad enumeration/secret output.
-- 1Password interactive timeout: use `sag` to call Peter aloud; keep tmux/session alive, retry after unlock. Do not silently abandon.
-- New API keys: immediately store in 1Password service account via `$one-password`; temp files/env only for current task.
-- Email/Google account for testing: use `gog+clawdbot@gmail.com`.
-- OpenClaw deployments: use `service@openclaw.org` accounts only.
+- Secrets/API keys/live creds: use explicit known secret routes only; env only if already exported; never enumerate broad env/secrets.
+- 1Password is optional. If `op` is configured, use `$one-password`; otherwise ask for the narrow secret route.
+- New API keys: store in the configured secret manager when one exists; otherwise keep temp/env use scoped to the current task and ask before persistence.
+- OpenClaw/homelab: keep source, host/runtime, and live assistant surfaces distinct.
 
 ## Project Defaults
 
@@ -37,6 +37,7 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - Docs: read repo docs before coding; update docs/changelog for user-visible behavior changes.
 - Inline code comments: brief notes for tricky, bug-prone, or previously buggy logic.
 - New deps: quick health check for recent releases/commits/adoption.
+- Codex-only setup: this repo may own `~/.codex/AGENTS.md`, `~/.codex/skills`, and `~/.codex/prompts`. Do not alter `~/.claude/*` from this workflow.
 
 ## PR / CI
 

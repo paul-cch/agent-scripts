@@ -31,11 +31,14 @@ Get VM status/IP:
 prlctl list --info "macOS Tahoe"
 ```
 
-Run guest commands as Peter:
+Status: ported later. Commands below are templates; replace `GUEST_USER` and VM name with the current lab before running.
+
+Run guest commands as the chosen VM user:
 
 ```bash
+GUEST_USER="<vm-user>"
 prlctl exec "macOS Tahoe" \
-  'sudo -u steipete -H /bin/zsh -lc '\''source ~/.zprofile 2>/dev/null || true; uname -a'\'''
+  "sudo -u $GUEST_USER -H /bin/zsh -lc 'source ~/.zprofile 2>/dev/null || true; uname -a'"
 ```
 
 Capture an independent host-side screenshot:
@@ -58,14 +61,16 @@ For macOS Screen Recording and Accessibility, the responsible process matters.
 Open the Screen Recording pane:
 
 ```bash
+GUEST_USER="<vm-user>"
 prlctl exec "macOS Tahoe" \
-  'sudo -u steipete -H open "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"'
+  "sudo -u $GUEST_USER -H open 'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture'"
 ```
 
 Open Ghostty:
 
 ```bash
-prlctl exec "macOS Tahoe" 'sudo -u steipete -H open -a Ghostty'
+GUEST_USER="<vm-user>"
+prlctl exec "macOS Tahoe" "sudo -u $GUEST_USER -H open -a Ghostty"
 ```
 
 ## Running Commands Through Ghostty
@@ -75,7 +80,8 @@ Best path: create a guest script with `prlctl exec`, open/focus Ghostty, then ty
 Guest script pattern:
 
 ```bash
-prlctl exec "macOS Tahoe" 'sudo -u steipete -H /bin/zsh -lc '\''cat > /tmp/run-vm-lab.zsh <<EOF
+GUEST_USER="<vm-user>"
+prlctl exec "macOS Tahoe" "sudo -u $GUEST_USER -H /bin/zsh -lc "'"'cat > /tmp/run-vm-lab.zsh <<EOF
 #!/bin/zsh
 source ~/.zprofile 2>/dev/null || true
 cd ~/Projects/Peekaboo || exit 1
@@ -89,14 +95,15 @@ exit $rc
 EOF
 chmod +x /tmp/run-vm-lab.zsh
 ln -sf /tmp/run-vm-lab.zsh /tmp/r
-open -a Ghostty'\'''
+open -a Ghostty'"'"
 ```
 
 Then link the launcher into Ghostty's home directory and type `./r` with `scripts/parallels_type.py`. This avoids unreliable path characters in Parallels key injection.
 
 ```bash
+GUEST_USER="<vm-user>"
 prlctl exec "macOS Tahoe" \
-  "sudo -u steipete -H /bin/zsh -lc 'ln -sf /tmp/run-vm-lab.zsh ~/r'"
+  "sudo -u $GUEST_USER -H /bin/zsh -lc 'ln -sf /tmp/run-vm-lab.zsh ~/r'"
 python3 skills/vm-lab/scripts/parallels_type.py "macOS Tahoe" $'./r\n'
 ```
 
@@ -155,8 +162,9 @@ Guest-side Peekaboo capture through Ghostty:
 Compare:
 
 ```bash
+GUEST_USER="<vm-user>"
 prlctl exec "macOS Tahoe" \
-  'sudo -u steipete -H /bin/zsh -lc '\''sips -g pixelWidth -g pixelHeight /tmp/peekaboo-vm.png'\'''
+  "sudo -u $GUEST_USER -H /bin/zsh -lc 'sips -g pixelWidth -g pixelHeight /tmp/peekaboo-vm.png'"
 sips -g pixelWidth -g pixelHeight /tmp/vm-prlctl-reference.png
 ```
 

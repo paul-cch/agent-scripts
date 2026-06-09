@@ -18,7 +18,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 SKILL_DIR = SCRIPT_DIR.parent
 
 DEFAULT_TRANSPORT = os.environ.get("OPENCLAW_RELAY_TRANSPORT", "local")
-DEFAULT_HOST = os.environ.get("OPENCLAW_RELAY_HOST", "steipete@steipete-macstudio.local")
+DEFAULT_HOST = os.environ.get("OPENCLAW_RELAY_HOST", "")
 DEFAULT_CWD = os.environ.get("OPENCLAW_RELAY_CWD")
 DEFAULT_ACPX_REPO = os.environ.get("OPENCLAW_RELAY_ACPX_REPO")
 DEFAULT_SESSION = os.environ.get("OPENCLAW_RELAY_SESSION", "codex-bridge")
@@ -49,6 +49,13 @@ def run_local(
     cwd: str | None = None,
     check: bool = True,
 ) -> subprocess.CompletedProcess[str]:
+    if cwd and not Path(cwd).exists():
+        return subprocess.CompletedProcess(
+            argv,
+            127,
+            "",
+            f"missing working directory: {cwd}\n",
+        )
     proc = subprocess.run(argv, text=True, capture_output=True, check=False, cwd=cwd)
     if check and proc.returncode != 0:
         message = proc.stderr.strip() or proc.stdout.strip() or f"command failed: {proc.returncode}"
@@ -106,6 +113,9 @@ def normalize_args(args: argparse.Namespace) -> argparse.Namespace:
         args.acpx_repo = str(Path(acpx_repo).expanduser())
         args.gateway_token_file = str(Path(gateway_token_file).expanduser()) if gateway_token_file else None
         return args
+
+    if not args.host:
+        raise RelayError("ssh transport requires --host or OPENCLAW_RELAY_HOST")
 
     home = remote_home(args.host)
     args.cwd = args.cwd or DEFAULT_CWD or f"{home}/clawdbot"
@@ -519,6 +529,12 @@ def read_text_arg(args: argparse.Namespace) -> str:
 def cmd_doctor(args: argparse.Namespace) -> None:
     if args.transport == "local":
         acpx_repo = Path(args.acpx_repo)
+        if not acpx_repo.is_dir():
+            print(
+                "OpenClaw relay is not configured: missing acpx repo. "
+                "Set OPENCLAW_RELAY_ACPX_REPO or pass --acpx-repo."
+            )
+            return
         ready = acpx_repo.is_dir() and Path(args.cwd, ".acpxrc.json").is_file() and Path(args.gateway_token_file).is_file()
         version_proc = run_acpx(args, ["--version"], check=False)
         status_proc = run_acpx(
@@ -918,8 +934,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> int:
     parser = build_parser()
-    args = normalize_args(parser.parse_args())
     try:
+        args = normalize_args(parser.parse_args())
         args.func(args)
     except RelayError as error:
         print(f"error: {error}", file=sys.stderr)

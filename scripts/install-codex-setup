@@ -1,0 +1,60 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "fileutils"
+require "time"
+
+ROOT = File.expand_path("..", __dir__)
+HOME_DIR = Dir.home
+CODEX_DIR = File.join(HOME_DIR, ".codex")
+BACKUP_ROOT = File.join(CODEX_DIR, "backups", "agent-scripts")
+STAMP = Time.now.utc.strftime("%Y%m%dT%H%M%SZ")
+BACKUP_DIR = File.join(BACKUP_ROOT, STAMP)
+
+TARGETS = {
+  File.join(CODEX_DIR, "AGENTS.md") => File.join(ROOT, "AGENTS.MD"),
+  File.join(CODEX_DIR, "skills") => File.join(ROOT, "skills"),
+}.freeze
+
+def backup_path(path)
+  File.join(BACKUP_DIR, path.sub(%r{\A/}, ""))
+end
+
+def backup_existing(path)
+  return unless File.exist?(path) || File.symlink?(path)
+
+  dest = backup_path(path)
+  FileUtils.mkdir_p(File.dirname(dest))
+  if File.symlink?(path)
+    FileUtils.ln_s(File.readlink(path), dest)
+  elsif File.directory?(path)
+    FileUtils.cp_r(path, dest, preserve: true)
+  else
+    FileUtils.cp(path, dest, preserve: true)
+  end
+end
+
+def replace_with_symlink(path, target)
+  parent = File.dirname(path)
+  FileUtils.mkdir_p(parent)
+  FileUtils.rm_f(path) if File.symlink?(path) || File.file?(path)
+  if File.directory?(path)
+    FileUtils.rm_rf(path)
+  end
+  File.symlink(target, path)
+end
+
+unless ARGV.include?("--apply")
+  warn "Dry run. Re-run with --apply to install Codex symlinks."
+  TARGETS.each do |path, target|
+    puts "would link #{path} -> #{target}"
+  end
+  exit 0
+end
+
+FileUtils.mkdir_p(BACKUP_DIR)
+TARGETS.each_key { |path| backup_existing(path) }
+TARGETS.each { |path, target| replace_with_symlink(path, target) }
+
+puts "backup: #{BACKUP_DIR}"
+TARGETS.each { |path, target| puts "linked #{path} -> #{target}" }

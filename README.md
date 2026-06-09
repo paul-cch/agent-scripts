@@ -1,6 +1,6 @@
 # Agent Scripts
 
-Shared agent instructions, skills, and small portable helpers for Peter's local workspaces.
+Paul's canonical Codex agent setup: shared instructions, reusable skills, slash-command prompts, and portable helpers for local Mac, UCL, and OpenClaw/homelab work.
 
 This repo is the canonical place for:
 - `AGENTS.MD`: shared hard rules for Codex/Claude-style agents
@@ -26,9 +26,9 @@ Rules:
 - Validate after edits: `scripts/validate-skills`.
 - Quote `description` in front matter.
 
-Global discovery usually points here:
+Global Codex discovery points here:
 - `~/.codex/skills -> ~/Projects/agent-scripts/skills`
-- `~/.claude/skills -> ~/Projects/agent-scripts/skills`
+- Use `~/.claude/` only when explicitly requested; this migration is Codex-only.
 
 Shared personal skills live as real folders in `skills/`. Public OpenClaw shared skills live in `../agent-skills` and are exposed here with tracked relative symlinks. Repo-owned skills stay canonical in their repo and are exposed here the same way, for example:
 
@@ -45,8 +45,10 @@ Shared hard rules live in `AGENTS.MD`.
 
 Global setup:
 - `~/.codex/AGENTS.md -> ~/Projects/agent-scripts/AGENTS.MD`
-- `~/.claude/CLAUDE.md -> ~/Projects/agent-scripts/AGENTS.MD`
-- `~/.claude/AGENTS.md -> ~/Projects/agent-scripts/AGENTS.MD`
+- `~/.codex/skills -> ~/Projects/agent-scripts/skills`
+- `~/.codex/prompts` mirrors `docs/slash-commands/`
+
+This repo is Paul-owned after migration. Keep `upstream` pointed at `steipete/agent-scripts` for reference, and keep `origin` pointed at Paul's fork.
 
 Downstream repos should use a pointer-style `AGENTS.MD`:
 
@@ -77,6 +79,37 @@ Repo-specific rules go below that pointer. Do not copy the shared blocks into do
 - Standalone Chrome DevTools helper.
 - Common commands: `start --profile`, `nav <url>`, `eval '<js>'`, `screenshot`, `console`, `network`, `search --content "<query>"`, `content <url>`, `inspect`, `kill --all --force`.
 - Build optional binary with `bun build scripts/browser-tools.ts --compile --target bun --outfile bin/browser-tools`.
+
+`scripts/audit-machine-setup`
+- Prints a read-only JSON report for Codex globals, expected tool binaries, broken skill symlinks, and local package setup.
+- Run before replacing global Codex wiring.
+
+`scripts/install-codex-setup`
+- Reversible Codex-only installer. Dry runs with `scripts/install-codex-setup`, apply with `--apply`.
+- Backs up replaced `~/.codex` surfaces under `~/.codex/backups/agent-scripts/<timestamp>/`.
+- Links `~/.codex/skills` directly to this repo's `skills/`; this replaces the existing skills directory after backup.
+
+`scripts/sync-prompts`
+- Copies `docs/slash-commands/*.md` into `~/.codex/prompts` (excluding `README.md`).
+- On apply, backs up any changed destination prompt before replacing it.
+
+## Paul Codex Install
+
+Preflight:
+
+```bash
+scripts/audit-machine-setup > /tmp/agent-scripts-before.json
+scripts/install-codex-setup
+scripts/sync-prompts
+```
+
+Apply after reviewing the dry run:
+
+```bash
+scripts/install-codex-setup --apply
+scripts/sync-prompts --apply
+scripts/audit-machine-setup > /tmp/agent-scripts-after.json
+```
 
 ## Syncing
 

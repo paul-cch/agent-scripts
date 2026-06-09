@@ -9,7 +9,7 @@ Use for macOS screen capture, UI inspection, and GUI automation.
 
 ## Binary
 
-- Prefer `~/bin/peekaboo` when present; it is Peter's local release copy.
+- Prefer `~/bin/peekaboo` when present; use it as a local release copy.
 - Else use `peekaboo`.
 - Check first: `~/bin/peekaboo --version || peekaboo --version`.
 

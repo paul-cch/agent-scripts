@@ -9,7 +9,7 @@ Goal: answer common GitHub read questions from gitcrawl and the `gh` shim first,
 
 ## Default Path
 
-Use `gh` normally. On Peter's machines it is expected to be the gitcrawl-backed shim, so supported reads can be answered locally or cached without changing commands.
+Use `gh` normally. On Paul's machine it may be the gitcrawl-backed shim, so supported reads can be answered locally or cached without changing commands. If the shim is not installed, use stock `gh` with narrower queries.
 
 Prefer these local/cached reads:
 

@@ -5,16 +5,16 @@ description: "Speaking ops: invites, keynotes, panels, Gmail/calendar, conferenc
 
 # Speaking
 
-Use this for Peter's speaking-opportunity workflow.
+Use this for speaking-opportunity intake and tracking.
 
 ## Sources
 
-- Repo: `/Users/steipete/Projects/conferences`
-- Sheet: `Peter Steinberger Inbounds`
+- Repo: `~/Projects/conferences`
+- Sheet: `Speaking Inbounds`
 - Sheet URL: https://docs.google.com/spreadsheets/d/1dNt5EjgfgvPoAx5fa-igk681gniCkzL-IZ2FmjFl8fs/edit?gid=0#gid=0
 - Main tab: `Invitations`
-- Main brief: `/Users/steipete/Projects/conferences/conference-opportunities.md`
-- One note per opportunity: `/Users/steipete/Projects/conferences/opportunities/NNN-slug.md`
+- Main brief: `~/Projects/conferences/conference-opportunities.md`
+- One note per opportunity: `~/Projects/conferences/opportunities/NNN-slug.md`
 
 Use `gog` first for Google data when available:
 
@@ -31,7 +31,7 @@ Track:
 
 - conferences, summits, retreats, keynotes, panels, firesides, workshops, university talks, high-signal private rooms
 - calendar holds that look like speaking commitments
-- email invites where Peter expressed interest, declined, or needs to respond
+- email invites where the user expressed interest, declined, or needs to respond
 
 Do not track in the conference list:
 
@@ -68,7 +68,7 @@ Before changing status:
 2. Read the full thread, not just snippets.
 3. Check Google Calendar for matching holds/invites.
 4. Treat calendar-only holds as unverified unless email supports them.
-5. Preserve Peter corrections: OMR/ORM is not a commitment; do not mark accepted unless Peter explicitly reverses that.
+5. Preserve explicit correction flags: OMR/ORM is not a commitment; do not mark accepted unless explicitly reversed by the user.
 
 Useful status meanings:
 

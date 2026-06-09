@@ -93,7 +93,7 @@ def main() -> int:
 
     if args.focus_app:
         subprocess.run(
-            ["prlctl", "exec", args.vm, f"sudo -u steipete -H open -a {args.focus_app!r}"],
+            ["prlctl", "exec", args.vm, f"open -a {args.focus_app!r}"],
             check=False,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,

@@ -10,15 +10,15 @@ Use for npm registry/account tasks: `npm whoami`, package availability, package 
 
 ## Auth
 
-- Use `one-password` first for secret rules.
+- 1Password is optional. If npm credentials or OTP are configured in `op`, use `$one-password`; otherwise use the current npm login or ask for the narrow auth route.
 - Never run `op` directly in the shell tool.
-- Known npm 1Password item: `npmjs` on `my.1password.com`.
+- Do not assume a specific npm 1Password item title, vault, username, or account.
 - The item may contain username/password/TOTP, not a stored npm token. That is fine.
-- Explicit user requests to `release`, `publish`, or `npm publish` are consent to complete npm auth, including a desktop 1Password sign-in/unlock prompt for the known `npmjs` item when service-account access cannot read it. Do not stop to ask for separate permission just because the npm auth prompt is expected.
-- Still stop and ask if the `npmjs` item is missing, the account/vault is ambiguous, credentials are malformed, npm denies package access, or the requested package/version does not match the repo release target.
+- Explicit user requests to `release`, `publish`, or `npm publish` are consent to complete npm auth, including a desktop 1Password sign-in/unlock prompt when service-account access cannot read the configured item. Do not stop to ask for separate permission just because the npm auth prompt is expected.
+- Still stop and ask if the configured item is missing, the account/vault is ambiguous, credentials are malformed, npm denies package access, or the requested package/version does not match the repo release target.
 - Run npm auth work inside one persistent tmux session. Reuse it on failure.
 - Keep npm auth in a temp npmrc; delete it after the command.
-- If hand-rolling, read `npmjs` once, keep secrets in shell variables, require a six-digit `op item get npmjs --account my.1password.com --otp`, write a temp npmrc, run all npm commands with `NPM_CONFIG_USERCONFIG`, then delete the npmrc and unset variables.
+- If hand-rolling, read the configured npm item once, keep secrets in shell variables, require a six-digit `op item get "$NPM_OP_ITEM" --account "$NPM_OP_ACCOUNT" --otp`, write a temp npmrc, run all npm commands with `NPM_CONFIG_USERCONFIG`, then delete the npmrc and unset variables.
 - npm 11 prompt piping is brittle; avoid `printf ... | npm login --auth-type=legacy`.
 - Avoid `expect` for npm login unless necessary; logs can echo prompts and are easy to get wrong.
 - Prefer the helper's registry API login path (`npm-profile` `loginCouch`) for automation.
@@ -26,14 +26,14 @@ Use for npm registry/account tasks: `npm whoami`, package availability, package 
 
 ## Package Reservation
 
-Use `scripts/reserve-packages.sh` from inside the same tmux session:
+Use `skills/npm/scripts/reserve-packages.sh` from inside this repo, inside the same tmux session:
 
 ```bash
-/Users/steipete/Projects/agent-scripts/skills/npm/scripts/reserve-packages.sh package-one package-two
+~/Projects/agent-scripts/skills/npm/scripts/reserve-packages.sh --account "$NPM_OP_ACCOUNT" --item "$NPM_OP_ITEM" package-one package-two
 ```
 
 What it does:
-- reads `npmjs` once via `op`
+- reads the configured npm item once via `op`
 - creates an npm registry session from username/password/TOTP
 - publishes `0.0.0` placeholder packages with a generic README
 - continues after per-package publish failures

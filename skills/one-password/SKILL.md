@@ -6,7 +6,7 @@ metadata: {"clawdbot":{"emoji":"🔐","requires":{"bins":["op","tmux"]},"install
 
 # 1Password CLI
 
-Follow the official CLI get-started steps. Don't guess install commands.
+Use only when 1Password is already configured or the user explicitly asks to configure it. 1Password is optional in Paul's setup.
 
 ## References
 
@@ -28,21 +28,19 @@ Follow the official CLI get-started steps. Don't guess install commands.
 
 ## Default Account
 
-- Default account for personal/work secrets is `my.1password.com`.
-- Do not silently use `my.1password.eu` / Titan unless explicitly asked.
-- Pass `--account my.1password.com` on every `op` command when storing or reading secrets. Do not rely on ambient account selection.
+- No default 1Password account is assumed. If multiple accounts exist, ask which account or use the account named by the user.
+- If multiple accounts exist, ask which account to use. Do not rely on ambient account selection.
 - `op account list` is metadata-only, but still must run inside tmux. Use it to confirm account names when routing is unclear.
-- `op signin --account my.1password.com` can return status 0 with no useful output and still not make a later shell signed in. Prefer doing sign-in, create/edit/get, and verification in the same tmux shell.
+- `op signin --account <account>` can return status 0 with no useful output and still not make a later shell signed in. Prefer doing sign-in, create/edit/get, and verification in the same tmux shell.
 
 ## Service account tokens
 
-- Prefer service-account tokens before any interactive 1Password flow. User dialogs are fallback only.
+- Prefer service-account tokens before any interactive 1Password flow when a configured token is present and clearly scoped; user dialogs are fallback only.
 - 1Password service accounts are non-interactive tokens for a specific vault/scope, useful for automation without unlocking the desktop app.
-- Peter's default service-account token is exported from `~/.profile` as `OP_SERVICE_ACCOUNT_TOKEN` in a Codex-managed block. It is scoped to the restricted `Molty` vault.
-- Older shells may expose the same value as `MOLTY_OP_SERVICE_ACCOUNT_TOKEN`; treat that as a fallback alias for known `Molty` vault items.
-- If the token is not already exported, not applicable, or cannot read the exact known item/field required, ask the user before using the desktop-app 1Password flow below.
-- Export/pass it only for the single command that needs it: `OP_SERVICE_ACCOUNT_TOKEN="$OP_SERVICE_ACCOUNT_TOKEN" op item get "<known item>" --vault Molty ...`.
-- Service-account `op` reads require an explicit vault query; omitting `--vault Molty` fails even when the token is valid.
+- Do not assume `OP_SERVICE_ACCOUNT_TOKEN` or vaults. Use service-account mode only when a scoped token is already configured for the exact workflow.
+- If no scoped token is present, use explicit config route if available, or ask the user before using desktop-app 1Password flow.
+- Export/pass tokens only for the single command that needs it; keep names and vaults explicit for that workflow.
+- Service-account `op` reads should only use the configured scope token and matching vault/item context.
 - Keep the tmux rule: every `op` command, including service-account reads, still runs inside one named tmux session.
 - Do not enumerate vaults/items with service accounts by default. If the user explicitly asks to search, gives a screenshot/listing, or gives only a fuzzy item name, use the safe metadata search below before asking.
 - Print presence/shape only, never token or secret values.
@@ -61,7 +59,7 @@ SESSION="op-work"
 
 tmux -S "$SOCKET" has-session -t "$SESSION" 2>/dev/null ||
   tmux -S "$SOCKET" new -d -s "$SESSION" -n shell
-tmux -S "$SOCKET" send-keys -t "$SESSION:" -- "op signin --account my.1password.com" Enter
+tmux -S "$SOCKET" send-keys -t "$SESSION:" -- "op signin --account <account>" Enter
 tmux -S "$SOCKET" send-keys -t "$SESSION:" -- "op whoami" Enter
 tmux -S "$SOCKET" capture-pane -p -J -t "$SESSION:" -S -200
 ```
@@ -72,7 +70,7 @@ Target the session as `$SESSION:` instead of assuming window `0`; older sessions
 ## Service-Specific Workflows
 
 - Keep service-specific auth details in the owning skill.
-- For npm registry/package work, use `$npm`; it documents the `npmjs` item, username/password/TOTP flow, and package reservation helper.
+- For npm registry/package work, use `$npm`; it documents item-neutral username/password/TOTP flow and the package reservation helper.
 - This skill owns only the generic 1Password rules: tmux-only `op`, targeted reads, one persistent session, no broad enumeration, no secret output.
 
 ## Known working secret-write pattern
@@ -90,7 +88,7 @@ cat > /tmp/op-store-secret.sh <<'SCRIPT'
 #!/usr/bin/env bash
 set -euo pipefail
 set +x
-ACCOUNT="my.1password.com"
+ACCOUNT="<account>"
 ITEM_TITLE="Service API Tokens"
 FIELD_NAME="api_token"
 EXPECTED_PREFIX=""
@@ -120,7 +118,7 @@ set -euo pipefail
 set +x
 ITEM_TITLE="Known API Credential Item"
 FIELD_LABEL="api_token"
-VAULT="Molty"
+VAULT="<vault>"
 value="$(
   OP_SERVICE_ACCOUNT_TOKEN="$OP_SERVICE_ACCOUNT_TOKEN" \
     op item get "$ITEM_TITLE" --vault "$VAULT" --format json |
@@ -145,7 +143,7 @@ cat > /tmp/op-find-item.sh <<'SCRIPT'
 #!/usr/bin/env bash
 set -euo pipefail
 set +x
-VAULT="Molty"
+VAULT="<vault>"
 QUERY="minimax"
 OP_SERVICE_ACCOUNT_TOKEN="$OP_SERVICE_ACCOUNT_TOKEN" \
   op item list --vault "$VAULT" --format json |
@@ -177,7 +175,7 @@ cat > /tmp/op-debug.sh <<'SCRIPT'
 #!/usr/bin/env bash
 set -euo pipefail
 set +x
-SIGNIN_OUTPUT="$(op signin --account my.1password.com 2>&1 || true)"
+SIGNIN_OUTPUT="$(op signin --account <account> 2>&1 || true)"
 echo "signin output bytes: ${#SIGNIN_OUTPUT}"
 op account list 2>&1 | sed -E "s/(xox[baprs]-)[A-Za-z0-9-]+/\\1REDACTED/g; s/(xapp-)[A-Za-z0-9-]+/\\1REDACTED/g"
 SCRIPT

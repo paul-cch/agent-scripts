@@ -17,7 +17,7 @@ Use for Cloudflare Registrar domain availability, pricing, listing, and registra
 ## Guardrails
 
 - Always run `domain-check` immediately before registration.
-- Registration is billable/non-refundable. Ask Peter for explicit confirmation before `POST /registrar/registrations`.
+- Registration is billable/non-refundable. Ask Paul for explicit confirmation before `POST /registrar/registrations`.
 - Do not print tokens.
 
 ## Commands

@@ -3,7 +3,7 @@ name: domain-dns-ops
 description: "DNS/domain ops: registrars, zones, redirects, DNS/HTTP verify, manager truth."
 ---
 
-# Domain/DNS Ops (Peter)
+# Domain/DNS Ops
 
 This skill is a thin router: use `~/Projects/manager` as truth, run the repo scripts, follow the checklists.
 
@@ -50,6 +50,6 @@ If you changed anything in `~/Projects/manager` (docs, worker, scripts, mappings
 
 ## Guardrails
 
-- Don’t touch `.md` lore domains or `steipete.md` unless explicitly asked; check `~/Projects/manager/DOMAINS.md`.
+- Don’t touch sensitive owner-domain lore files unless explicitly asked; check `~/Projects/manager/DOMAINS.md`.
 - Confirm registrar before debugging CF “invalid nameservers” (often “wrong registrar”).
 - Prefer reversible steps; verify after each change (NS → DNS → redirect).

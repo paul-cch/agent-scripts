@@ -1,3 +1,9 @@
+---
+summary: "Swift concurrency notes for practical isolation, tasks, and Sendable review"
+read_when:
+  - Reviewing or fixing Swift concurrency behavior.
+---
+
 # Swift Concurrency (Approachable) - RepoBar Notes
 
 ## Goal

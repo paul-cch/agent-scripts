@@ -19,13 +19,13 @@ Use for BlackBar, RepoBar, CodexBar, Trimmy, and similar Sparkle-updated macOS a
 ## Commands
 
 ```bash
-/Users/steipete/Projects/agent-scripts/skills/release-mac-app/scripts/mac-release status
-/Users/steipete/Projects/agent-scripts/skills/release-mac-app/scripts/mac-release notes [version] [output.md]
-/Users/steipete/Projects/agent-scripts/skills/release-mac-app/scripts/mac-release changelog-html <version> [CHANGELOG.md]
-/Users/steipete/Projects/agent-scripts/skills/release-mac-app/scripts/mac-release make-appcast <zip> [feed-url]
-/Users/steipete/Projects/agent-scripts/skills/release-mac-app/scripts/mac-release verify-appcast [version]
-/Users/steipete/Projects/agent-scripts/skills/release-mac-app/scripts/mac-release check-assets [tag]
-/Users/steipete/Projects/agent-scripts/skills/release-mac-app/scripts/mac-release release
+skills/release-mac-app/scripts/mac-release status
+skills/release-mac-app/scripts/mac-release notes [version] [output.md]
+skills/release-mac-app/scripts/mac-release changelog-html <version> [CHANGELOG.md]
+skills/release-mac-app/scripts/mac-release make-appcast <zip> [feed-url]
+skills/release-mac-app/scripts/mac-release verify-appcast [version]
+skills/release-mac-app/scripts/mac-release check-assets [tag]
+skills/release-mac-app/scripts/mac-release release
 ```
 
 ## Manifest
@@ -64,7 +64,7 @@ Common optional:
 - `MAC_RELEASE_EXTRA_ASSET_WAIT_SECONDS`
 - `MAC_RELEASE_EXTRA_ASSET_WAIT_INTERVAL`
 - `MAC_RELEASE_OP_ITEM` + `MAC_RELEASE_OP_FIELDS` for required packaging secrets. The release helper reads the known item once via `op` inside one persistent tmux session, then exports the requested fields for the package command.
-- `MAC_RELEASE_OP_ACCOUNT` defaults to `my.1password.com`; `MAC_RELEASE_OP_VAULT`, `MAC_RELEASE_OP_TMUX_SESSION`, `MAC_RELEASE_OP_WAIT_SECONDS` are optional. Without a vault, service-account token env is unset for that single `op` read so the personal desktop account handles it.
+- `MAC_RELEASE_OP_ACCOUNT` is optional; set it only for the desired 1Password account. `MAC_RELEASE_OP_VAULT`, `MAC_RELEASE_OP_TMUX_SESSION`, and `MAC_RELEASE_OP_WAIT_SECONDS` are optional.
 - `MAC_RELEASE_RUN_LOGIN_SHELL=1` opts command hooks back into `bash -lc`; default hooks use `env -u BASH_ENV bash -c` so shell startup files cannot override exported release secrets.
 
 1Password rules:

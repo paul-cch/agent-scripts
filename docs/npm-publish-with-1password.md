@@ -5,7 +5,9 @@ read_when:
   - "Need npm OTP/TOTP from 1Password."
 ---
 
-# npm publish via tmux + op
+# Optional npm publish via tmux + op
+
+Paul setup note: this path is optional. Use it only when 1Password CLI is installed and configured for the relevant npm account.
 
 Goal: publish to npm without pasting tokens/passwords into terminal logs.
 
@@ -46,11 +48,11 @@ tmux -S "$SOCKET" send-keys -t "$SESSION":1.1 -- "op item get '<Item>' --vault '
 ## Preferred: granular automation token (+ optional OTP)
 
 Store a granular npm token in 1Password (item field `token`), plus TOTP if required.
-For Peter's npm account, the 1Password item is `op://Private/Npmjs`.
+Set the exact vault/item refs for Paul's npm account before running this flow.
 
 ```bash
-TOKEN_REF='op://Private/Npmjs/token'
-OTP_REF='op://Private/Npmjs/one-time password?attribute=otp'
+TOKEN_REF='op://<Vault>/<Item>/token'
+OTP_REF='op://<Vault>/<Item>/one-time password?attribute=otp'
 
 tmux -S "$SOCKET" send-keys -t "$SESSION":1.1 -- "NODE_AUTH_TOKEN=\"\$(op read \"$TOKEN_REF\" | tr -d \"\\n\")\" npm publish --otp \"\$(op read \"$OTP_REF\" | tr -d \"\\n\")\"" Enter
 ```
@@ -77,14 +79,13 @@ env -u NPM_TOKEN -u NODE_AUTH_TOKEN npm whoami
 ## Fallback: `npm login` using op buffers (no echo)
 
 When password auth is unavoidable, avoid typing secrets by piping into tmux
-buffers and pasting. Peter's npm account is stored in the 1Password item
-`Npmjs` in the `Private` vault.
+buffers and pasting. Set the exact vault/item refs for the npm account first.
 
 ```bash
-USER_REF='op://Private/Npmjs/name'
-PASS_REF='op://Private/Npmjs/password'
-EMAIL_REF='op://Private/Npmjs/email'
-OTP_REF='op://Private/Npmjs/one-time password?attribute=otp'
+USER_REF='op://<Vault>/<Item>/name'
+PASS_REF='op://<Vault>/<Item>/password'
+EMAIL_REF='op://<Vault>/<Item>/email'
+OTP_REF='op://<Vault>/<Item>/one-time password?attribute=otp'
 
 # load buffers (strip trailing newline)
 tmux -S "$SOCKET" send-keys -t "$SESSION":1.1 -- "op read \"$USER_REF\"  | tr -d \"\\n\" | tmux -S \"$SOCKET\" load-buffer -b npm_user  -" Enter
@@ -107,9 +108,9 @@ If the item has duplicate labels, extract by field purpose/type from JSON inside
 tmux instead of reading by label:
 
 ```bash
-tmux -S "$SOCKET" send-keys -t "$SESSION":1.1 -- "op item get Npmjs --vault Private --format json | node -e \"let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const item=JSON.parse(s);const fields=item.fields||[];const pick=(fn)=>fields.find(fn)?.value||'';process.stdout.write(pick(f=>f.purpose==='USERNAME'))})\" | tmux -S \"$SOCKET\" load-buffer -b npm_user -" Enter
-tmux -S "$SOCKET" send-keys -t "$SESSION":1.1 -- "op item get Npmjs --vault Private --format json | node -e \"let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const item=JSON.parse(s);const fields=item.fields||[];const pick=(fn)=>fields.find(fn)?.value||'';process.stdout.write(pick(f=>f.purpose==='PASSWORD'&&f.type==='CONCEALED'))})\" | tmux -S \"$SOCKET\" load-buffer -b npm_pass -" Enter
-tmux -S "$SOCKET" send-keys -t "$SESSION":1.1 -- "op item get Npmjs --vault Private --format json | node -e \"let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const item=JSON.parse(s);const fields=item.fields||[];const pick=(fn)=>fields.find(fn)?.value||'';process.stdout.write(pick(f=>f.label==='email'))})\" | tmux -S \"$SOCKET\" load-buffer -b npm_email -" Enter
+tmux -S "$SOCKET" send-keys -t "$SESSION":1.1 -- "op item get '<Item>' --vault '<Vault>' --format json | node -e \"let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const item=JSON.parse(s);const fields=item.fields||[];const pick=(fn)=>fields.find(fn)?.value||'';process.stdout.write(pick(f=>f.purpose==='USERNAME'))})\" | tmux -S \"$SOCKET\" load-buffer -b npm_user -" Enter
+tmux -S "$SOCKET" send-keys -t "$SESSION":1.1 -- "op item get '<Item>' --vault '<Vault>' --format json | node -e \"let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const item=JSON.parse(s);const fields=item.fields||[];const pick=(fn)=>fields.find(fn)?.value||'';process.stdout.write(pick(f=>f.purpose==='PASSWORD'&&f.type==='CONCEALED'))})\" | tmux -S \"$SOCKET\" load-buffer -b npm_pass -" Enter
+tmux -S "$SOCKET" send-keys -t "$SESSION":1.1 -- "op item get '<Item>' --vault '<Vault>' --format json | node -e \"let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const item=JSON.parse(s);const fields=item.fields||[];const pick=(fn)=>fields.find(fn)?.value||'';process.stdout.write(pick(f=>f.label==='email'))})\" | tmux -S \"$SOCKET\" load-buffer -b npm_email -" Enter
 ```
 
 Gotchas:

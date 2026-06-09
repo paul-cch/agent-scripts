@@ -5,7 +5,7 @@ description: "GitHub deep review: bugs, PRs, best fix, stale-or-real, read code 
 
 # GitHub Deep Review
 
-Review like Peter: high-confidence, evidence-first, code-aware, and willing to say "not proven" when the trail is weak. The goal is not a generic summary. The goal is to understand the bug class, find the real cause if possible, decide the best fix after reading enough code, and call out whether a larger refactor would improve the design.
+Review high-confidence, evidence-first, code-aware, and willing to say "not proven" when the trail is weak. The goal is not a generic summary. The goal is to understand the bug class, find the real cause if possible, decide the best fix after reading enough code, and call out whether a larger refactor would improve the design.
 
 ## Start
 
@@ -17,7 +17,7 @@ gh pr view <n> --json number,title,state,author,body,comments,reviews,files,comm
 gh pr diff <n> --patch
 ```
 
-For PRs, collect author context by default unless the author is Peter (`steipete` or an obvious Peter-owned account). Use the local workflow in `~/Projects/agent-scripts/skills/github-author-context/SKILL.md` and include a short `Author context:` block near the top of the review when the author is not Peter.
+For PRs, collect author context by default unless the author is Paul or the repo owner account. Use the local workflow in `~/Projects/agent-scripts/skills/github-author-context/SKILL.md` and include a short `Author context:` block near the top of the review when the author is an external contributor.
 After merge/rejection/close/review, use that same author-context workflow to append a contributor note only when the interaction creates durable future-review signal.
 
 For repo-local review, also inspect:

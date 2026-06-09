@@ -20,7 +20,7 @@ One skill. Two transports:
 
 Default to `local` for direct telephone-game work from the current OpenClaw checkout. Use `ssh` when the target agent/session lives on another machine.
 
-For Peter's setup, Molty normally lives on the Mac Studio gateway, reached as `steipete@steipete-macstudio.local`; avoid the `mac-studio` SSH alias for one-shot relay work because that alias auto-attaches tmux.
+For Paul's setup, resolve the current OpenClaw runtime from Homelab/OpenClaw docs and live checks before using SSH. Do not assume Peter's Mac Studio, Molty, or `steipete` hostnames as defaults.
 
 Script path: `scripts/openclaw_relay.py`
 
@@ -47,7 +47,7 @@ The script avoids baked-in personal paths. Override with env or flags when neede
 - transport: `local`
 - local repo cwd: current working directory
 - local acpx repo: `<cwd>/extensions/acpx`
-- ssh host: `steipete@steipete-macstudio.local`
+- ssh host: set `OPENCLAW_RELAY_HOST` or pass `--host`; no default remote host is assumed for Paul's setup.
 - remote repo cwd: `<remote-home>/clawdbot`
 - remote acpx repo: `<remote-home>/Projects/oss/acpx`
 - gateway token file: `<home>/.openclaw/gateway.token`
@@ -109,7 +109,7 @@ Force-send media when the user explicitly wants a channel post:
 ```bash
 python3 scripts/openclaw_relay.py force-send \
   --transport ssh \
-  --host steipete@steipete-macstudio.local \
+  --host "$OPENCLAW_RELAY_HOST" \
   --target maintainers \
   --text "Demo video." \
   --media /tmp/demo.mp4
@@ -126,10 +126,10 @@ python3 scripts/openclaw_relay.py show
 Remote host example:
 
 ```bash
-python3 scripts/openclaw_relay.py doctor --transport ssh --host steipete@steipete-macstudio.local
+python3 scripts/openclaw_relay.py doctor --transport ssh --host "$OPENCLAW_RELAY_HOST"
 python3 scripts/openclaw_relay.py send \
   --transport ssh \
-  --host steipete@steipete-macstudio.local \
+  --host "$OPENCLAW_RELAY_HOST" \
   --message "Reply with exactly OK."
 ```
 

@@ -15,14 +15,14 @@ Security:
   printed.
 
 Defaults:
-  account:  my.1password.com
-  item:     npmjs
+  account:  from NPM_OP_ACCOUNT, or required via --account
+  item:     from NPM_OP_ITEM, or required via --item
   registry: https://registry.npmjs.org/
 USAGE
 }
 
-ACCOUNT="${NPM_OP_ACCOUNT:-my.1password.com}"
-ITEM="${NPM_OP_ITEM:-npmjs}"
+ACCOUNT="${NPM_OP_ACCOUNT:-}"
+ITEM="${NPM_OP_ITEM:-}"
 REGISTRY="${NPM_REGISTRY:-https://registry.npmjs.org/}"
 DRY_RUN=0
 PACKAGES=()
@@ -64,6 +64,11 @@ done
 
 if [ "${#PACKAGES[@]}" -eq 0 ]; then
   usage >&2
+  exit 2
+fi
+
+if [ -z "$ACCOUNT" ] || [ -z "$ITEM" ]; then
+  echo "missing npm 1Password account/item; pass --account/--item or set NPM_OP_ACCOUNT/NPM_OP_ITEM" >&2
   exit 2
 fi
 

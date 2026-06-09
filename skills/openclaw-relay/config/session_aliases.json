@@ -1,4 +1,5 @@
 {
-  "main": "agent:main:main",
-  "maintainers": "agent:main:discord:channel:1456744319972282449"
+  "main": "agent:<paul-agent-id>:main",
+  "homelab": "agent:<paul-agent-id>:homelab",
+  "maintainers": "agent:<paul-agent-id>:maintainers"
 }

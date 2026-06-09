@@ -1,9 +1,28 @@
 # Tools Reference
 
-CLI tools available on Peter's machines. Use these for agentic tasks.
+CLI tools available or planned on Paul's machine. Treat status as live-checkable, not permanent truth.
+
+| Tool | Status | Paul route |
+| --- | --- | --- |
+| `gh` | active | GitHub CLI on PATH |
+| `gws` | active | Google-facing assistant work |
+| `peekaboo` | active | macOS screenshot/UI inspection when permissions allow |
+| `mcporter` | active | Browser/MCP fallback |
+| `yt-dlp`/`ffmpeg` | active | Video transcript/download helper |
+| `op` | optional | Not mandatory; configure only when needed |
+| `rem` | missing | Apple Reminders CLI candidate |
+| `things` | missing | Things 3 CLI candidate |
+| `tailscale` | missing | Homelab remote routing candidate |
+| `prlctl` | missing | Parallels VM workflow candidate |
+| `bird` | ported later | X/Twitter workflow not configured |
+| `sonoscli` | ported later | Local speaker workflow not configured |
+| `clawdis` | ported later | Messaging gateway not configured |
+| `oracle` | active candidate | Local prompt-forwarding workflow |
 
 ## bird 🐦
 Twitter/X CLI for posting, replying, reading tweets.
+
+Status on Paul's machine: `ported later`; do not run until configured.
 
 **Location**: `~/Projects/bird/bird`
 
@@ -26,6 +45,8 @@ bird check                             # Show credential sources
 
 ## sonoscli 🔊
 Control Sonos speakers over local network (UPnP/SOAP).
+
+Status on Paul's machine: `ported later`; do not run until configured.
 
 **Location**: `~/Projects/sonoscli/bin/sonos`
 
@@ -58,6 +79,8 @@ sonos open --name "Room" spotify:track:<id>
 ## peekaboo 👀
 Screenshot, screen inspection, and click automation.
 
+Status on Paul's machine: `active`.
+
 **Location**: `~/Projects/Peekaboo`
 
 **Commands**:
@@ -79,6 +102,8 @@ peekaboo permissions status            # Check TCC permissions
 ## sweetistics 📊
 Twitter/X analytics desktop app (Tauri).
 
+Status on Paul's machine: `ported later`; do not run until configured.
+
 **Location**: `~/Projects/sweetistics`
 
 Use for deeper Twitter data analysis beyond what `bird` provides.
@@ -87,6 +112,8 @@ Use for deeper Twitter data analysis beyond what `bird` provides.
 
 ## clawdis 📡
 WhatsApp/Telegram messaging gateway and agent interface.
+
+Status on Paul's machine: `ported later`; do not run until configured.
 
 **Location**: `~/Projects/clawdis`
 
@@ -104,12 +131,16 @@ clawdis status                         # Session health
 ## oracle 🧿
 Hand prompts + files to other AIs (GPT-5 Pro, etc.).
 
+Status on Paul's machine: `active candidate`.
+
 **Usage**: `npx -y @steipete/oracle --help` (run once per session to learn syntax)
 
 ---
 
 ## gh
 GitHub CLI for PRs, issues, CI, releases.
+
+Status on Paul's machine: `active`.
 
 **Usage**: `gh help`
 
@@ -124,6 +155,8 @@ gh run list / gh run view <id>
 
 ## mcporter
 MCP server launcher for browser automation, web scraping.
+
+Status on Paul's machine: `active`.
 
 **Usage**: `npx mcporter --help`
 

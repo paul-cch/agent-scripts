@@ -29,7 +29,7 @@ repobar_cmd() {
 repobar_cmd status --json
 ```
 
-Default owners for broad triage: `steipete`, `openclaw`. For broad/default queue triage, include a detail pass for `openclaw/openclaw` even if it is not the first repo by count, because it is the main ClawdBot/OpenClaw queue. Do not include `amantus-ai` or other owners unless the user names them, the current repo is already under that owner, or the task explicitly asks for all/everything. For an exact owner-specific task, do not broaden beyond the named owner.
+Default owners for broad triage: `openclaw`. For broad/default queue triage, include a detail pass for `openclaw/openclaw` even if it is not the first repo by count, because it is the main ClawdBot/OpenClaw queue. Do not include extra owners unless the user names them, the current repo is already under that owner, or the task explicitly asks for all/everything. For an exact owner-specific task, do not broaden beyond the named owner.
 
 ## Local Repo Gate
 
@@ -42,11 +42,11 @@ git pull --ff-only
 git status --short --branch
 ```
 
-Proceed only when the branch is `main`, the pull succeeds, and the worktree is clean. If the branch is not `main`, the pull fails, or `git status --short` shows changes, stop and ask Peter what to do. Do not switch branches, stash, commit, reset, restore, or clean without explicit direction.
+Proceed only when the branch is `main`, the pull succeeds, and the worktree is clean. If the branch is not `main`, the pull fails, or `git status --short` shows changes, stop and ask the user what to do. Do not switch branches, stash, commit, reset, restore, or clean without explicit direction.
 
 ## Scope Rule
 
-If the user says `triage` and the current working directory is a Git repo with a GitHub remote, triage only that project. Do not broaden to all Peter/org queues unless the user says `broad`, `all`, `everything`, names multiple owners/orgs, or asks for cross-repo triage.
+If the user says `triage` and the current working directory is a Git repo with a GitHub remote, triage only that project. Do not broaden to all owner/org queues unless the user says `broad`, `all`, `everything`, names multiple owners/orgs, or asks for cross-repo triage.
 
 If the repo has `VISION.md`, read it before judging what can be handled autonomously. Use it as the product-fit source of truth, then apply this skill's risk/testability rules. If no `VISION.md` exists, use the autonomous-fit rules below.
 
@@ -71,7 +71,7 @@ gh pr list --repo "$repo" --state open --limit 50 \
   --json number,title,author,isDraft,reviewDecision,mergeStateStatus,createdAt,updatedAt,url
 ```
 
-Before acting on any issue or PR, read all comments and treat Peter/owner comments as authoritative routing instructions. If Peter says it looks good, needs changes, is superseded, is product-approved, or is not wanted, that overrides bot labels and ordinary triage judgment. If there is no Peter/owner comment, use maintainer judgment and say that the call is yours.
+Before acting on any issue or PR, read all comments and treat project-owner comments as authoritative routing instructions. If the owner says it looks good, needs changes, is superseded, is product-approved, or is not wanted, that overrides bot labels and ordinary triage judgment. If there is no owner comment, use maintainer judgment and say that the call is yours.
 
 Then inspect enough detail to explain every surfaced item. For small queues (about 10 open items or fewer), inspect all items. For larger queues, inspect the top priority slice and say what was not expanded.
 
@@ -90,14 +90,14 @@ Only comment, close, merge, rerun, or patch with strong evidence.
 When the user says `triage`, always scan open issues and open PRs for the current repo. Return:
 
 - `Autonomous candidates`: items that appear fixable/landable without more product input, with URL, why it qualifies, required verification, and confidence. This is a selection for review, not permission to start work unless the user also asks for autonomous execution.
-- `Needs Peter`: items blocked on Peter/owner decision, product direction, missing credentials/access, live-provider proof that cannot be obtained, security/privacy judgment, or an authoritative Peter comment requesting changes.
+- `Needs owner`: items blocked on owner decision, product direction, missing credentials/access, live-provider proof that cannot be obtained, security/privacy judgment, or an authoritative owner comment requesting changes.
 - `Defer/close/supersede`: stale, duplicate, lower-quality, or overlapping items where the likely action is not new code.
 
 For every plausible autonomous candidate, use available high-reasoning subagents, oracle, or independent agent review to check feasibility before presenting it when tool support exists. Give the subagent only task-local evidence and ask whether the item can be completed autonomously, what verification is required, and what could make it unsafe. If subagents are unavailable, do the same depth yourself and say so.
 
 ## Autonomous Work Mode
 
-When the user says `do work autonomously`, `work you can do autonomously`, `keep going`, or similar, do not stop after a queue summary or one local patch. Treat it as permission to process the eligible issue/PR queue sequentially until no safe autonomous item remains, each item is landed/closed/deferred with proof, or a blocker requires Peter.
+When the user says `do work autonomously`, `work you can do autonomously`, `keep going`, or similar, do not stop after a queue summary or one local patch. Treat it as permission to process the eligible issue/PR queue sequentially until no safe autonomous item remains, each item is landed/closed/deferred with proof, or a blocker requires owner direction.
 
 Never work multiple tickets at once. For each item:
 
@@ -107,7 +107,7 @@ Never work multiple tickets at once. For each item:
    - Ask first: new features, product/vision choices, broad behavior changes, risky dependencies, security-sensitive changes without strong proof, live-provider work without usable credentials, anything that cannot be end-to-end tested.
    - Refactor preference: choose a clean bounded refactor when it is the better fix for an autonomous item; do not use "small patch" as the default if it leaves worse design.
 3. Implement or fix the PR in the best maintainable way. Prefer updating the contributor PR when writable; otherwise recreate locally with credit.
-4. Verify locally and live end-to-end when possible. For UI behavior, use the repo's expected live UI proof path, such as Peekaboo, browser-use, screenshots, or VM proof. For API/provider behavior, use a real usable key/account through the expected secret workflow when available. If access is missing, stop before pretending the item is done and ask Peter for help.
+4. Verify locally and live end-to-end when possible. For UI behavior, use the repo's expected live UI proof path, such as Peekaboo, browser-use, screenshots, or VM proof. For API/provider behavior, use a real usable key/account through the expected secret workflow when available. If access is missing, stop before pretending the item is done and ask the user for help.
 5. Run Codex Auto Review before commit/land unless trivial/docs-only or explicitly skipped; address accepted/actionable findings.
 6. Ensure CI is green, PR description/changelog are good, land/close/comment with evidence, then return to `main`, pull `--ff-only`, and verify a clean worktree before selecting the next autonomous item.
 7. After every landed PR, post a PR comment with exactly how it was tested: local commands, live/UI/API proof, CI run/check state, landed commit, and any caveats. If verification images apply, upload/post them with `gh image` when available; if the uploader is unavailable, say so and include the screenshot path or alternate GitHub attachment proof instead of silently omitting images.
@@ -174,7 +174,7 @@ PR queue, primary triage order:
 repobar_cmd repos \
   --scope all \
   --only-with work \
-  --owner steipete \
+  --owner openclaw \
   --owner openclaw \
   --sort prs \
   --json
@@ -186,7 +186,7 @@ Issue pressure, second pass when issues matter:
 repobar_cmd repos \
   --scope all \
   --only-with work \
-  --owner steipete \
+  --owner openclaw \
   --owner openclaw \
   --sort issues \
   --json
@@ -197,13 +197,13 @@ Use `--forks` and `--archived` only when the user says "all", "everything", or a
 For a compact terminal view:
 
 ```bash
-repobar_cmd repos --scope all --only-with work --owner steipete --owner openclaw --sort prs --plain
+repobar_cmd repos --scope all --only-with work --owner openclaw --sort prs --plain
 ```
 
 Useful `jq` summary:
 
 ```bash
-repobar_cmd repos --scope all --only-with work --owner steipete --owner openclaw --sort prs --json |
+repobar_cmd repos --scope all --only-with work --owner openclaw --sort prs --json |
   jq -r '.[] | [.fullName, .openIssues, .openPulls, .activityTitle, .activityActor] | @tsv'
 ```
 
@@ -262,7 +262,7 @@ Prioritize:
 Deprioritize:
 
 - Archived repos unless the user asked for them.
-- Fork-only queues unless the fork is actively maintained by Peter.
+- Fork-only queues unless the fork is actively maintained by its owner.
 - Old broad feature requests with no reproduction or owner signal.
 - Repos with missing/removable remotes until local state is clarified.
 - Feature/provider PRs that need unavailable API keys or accounts for end-to-end proof.
@@ -298,7 +298,7 @@ Skipped:
 For a broad scan, answer with:
 
 ```text
-Owners scanned: steipete, openclaw
+Owners scanned: openclaw
 Source: RepoBar <command summary>, plus gh for selected PRs/issues
 
 Top queues:

@@ -1,0 +1,64 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "json"
+require "fileutils"
+require "shellwords"
+require "time"
+
+ROOT = File.expand_path("..", __dir__)
+HOME_DIR = Dir.home
+
+def command_path(name)
+  ENV.fetch("PATH", "").split(File::PATH_SEPARATOR).each do |dir|
+    candidate = File.join(dir, name)
+    return candidate if File.executable?(candidate) && !File.directory?(candidate)
+  end
+  nil
+end
+
+def path_state(path)
+  expanded = File.expand_path(path)
+  if File.symlink?(expanded)
+    target = File.readlink(expanded)
+    { path: expanded, kind: "symlink", target: target, exists: File.exist?(expanded) }
+  elsif File.exist?(expanded)
+    { path: expanded, kind: File.directory?(expanded) ? "directory" : "file", exists: true }
+  else
+    { path: expanded, kind: "missing", exists: false }
+  end
+end
+
+def skill_symlinks
+  Dir.glob(File.join(ROOT, "skills", "*")).sort.select { |path| File.symlink?(path) }.map do |path|
+    {
+      path: path.sub("#{ROOT}/", ""),
+      target: File.readlink(path),
+      ok: File.exist?(path),
+    }
+  end
+end
+
+bins = %w[
+  bun ruby node npm pnpm gh tmux gws uv yt-dlp ffmpeg mcporter peekaboo
+  op rem things tailscale prlctl sign_update notarytool xcrun brew jq python3
+]
+
+global_paths = [
+  "~/.codex/AGENTS.md",
+  "~/.codex/skills",
+  "~/.codex/prompts",
+  "~/.codex/config.toml",
+]
+
+report = {
+  repo_root: ROOT,
+  generated_at: Time.now.utc.iso8601,
+  git_head: `git -C #{ROOT.shellescape} rev-parse HEAD 2>/dev/null`.strip,
+  global_paths: global_paths.map { |path| path_state(path) },
+  binaries: bins.to_h { |bin| [bin, command_path(bin)] },
+  skill_symlinks: skill_symlinks,
+  video_transcript_installed: File.directory?(File.join(ROOT, "skills", "video-transcript-downloader", "node_modules")),
+}
+
+puts JSON.pretty_generate(report)
