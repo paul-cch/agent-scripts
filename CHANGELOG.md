@@ -4,6 +4,9 @@ summary: Timeline of guardrail helper changes mirrored from Sweetistics and rela
 
 # Changelog
 
+## 2026-06-14 — Chief Of Staff Skill
+- Added `chief-of-staff` as a maintainer-orchestrator-style control plane for autonomous-but-reversible worker/subagent coordination, daily briefs, open-loop tracking, project pulse checks, heartbeat monitoring, and follow-up drafts across Notion tasks, calendar, GitHub, Moodle via Homelab, Homelab/OpenClaw, UCL placement, dissertation, exams, and coursework.
+
 ## 2026-06-11 — Confidentiality Guardrail
 - Added strong global guidance against exposing non-public organizational information, including internal project and model names.
 
