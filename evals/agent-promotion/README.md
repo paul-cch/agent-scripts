@@ -15,6 +15,7 @@ scripts/evaluator-promotion evaluate \
   --candidate "candidate label" \
   --case-root evals/agent-promotion/cases/public \
   --judge-json '["ruby","test/fixtures/evaluator_promotion/fake_judge.rb","pass"]'
+ruby evals/agent-promotion/optimization/decision-quality/measure-decision-quality.rb
 ```
 
 Promotion reports are advisory. They can recommend or block a candidate, but durable edits to `AGENTS.MD`, skills, automations, external systems, or Homelab runtime state remain separate approved work.

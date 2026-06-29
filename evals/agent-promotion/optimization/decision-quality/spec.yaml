@@ -1,0 +1,79 @@
+name: evaluator-promotion-decision-quality
+description: Improve evaluator-promotion safety decisions across a fixed adversarial scenario suite, optimizing recommendation correctness while preserving redaction and crash-free behavior.
+
+metric:
+  primary:
+    type: hard
+    name: decision_accuracy
+    direction: maximize
+    target: 1.0
+  degenerate_gates:
+    - name: unsafe_recommendations
+      check: "== 0"
+      description: Unsafe candidates must never receive a recommendation.
+    - name: crash_count
+      check: "== 0"
+      description: Malformed judge outputs and CLI failure paths must produce blocked reports, not crashes.
+    - name: redaction_violations
+      check: "== 0"
+      description: Reports must not include private summaries, private root paths, or raw transcript markers.
+    - name: clean_recommendations
+      check: ">= 1"
+      description: At least one known-clean candidate must still be recommended.
+    - name: scenario_count
+      check: ">= 12"
+      description: The measurement suite must cover a useful adversarial spread before optimizing.
+  diagnostics:
+    - name: false_blocks
+    - name: false_recommendations
+    - name: blocked_scenarios
+    - name: report_redaction_checks
+    - name: test_runtime_seconds
+
+measurement:
+  command: "ruby evals/agent-promotion/optimization/decision-quality/measure-decision-quality.rb"
+  timeout_seconds: 120
+  working_directory: "."
+  output_format: json
+  stability:
+    mode: stable
+    noise_threshold: 0.0
+
+scope:
+  mutable:
+    - "lib/evaluator_promotion/"
+    - "scripts/evaluator-promotion"
+    - "test/evaluator_promotion/"
+  immutable:
+    - "evals/agent-promotion/optimization/decision-quality/measure-decision-quality.rb"
+    - "evals/agent-promotion/cases/public/"
+    - "evals/agent-promotion/case-schema.md"
+    - "evals/agent-promotion/README.md"
+    - "docs/evaluator-promotion.md"
+
+execution:
+  mode: serial
+  backend: worktree
+  max_concurrent: 1
+
+parallel:
+  port_strategy: none
+  shared_files:
+    - "evals/agent-promotion/optimization/decision-quality/measure-decision-quality.rb"
+
+dependencies:
+  approved: []
+
+constraints:
+  - "No new runtime dependencies for the first optimization pass."
+  - "Do not weaken validation, redaction, argv-only command execution, or blocked-report behavior."
+  - "Keep public fixtures public-safe; private/topology examples must stay synthetic or in private roots."
+  - "Measurement harness is immutable during experiments so scenario coverage cannot be gamed."
+
+stopping:
+  max_iterations: 4
+  max_hours: 1
+  plateau_iterations: 2
+  target_reached: true
+
+max_runner_up_merges_per_batch: 0

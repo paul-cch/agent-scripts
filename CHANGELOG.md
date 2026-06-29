@@ -9,6 +9,7 @@ summary: Timeline of guardrail helper changes mirrored from Sweetistics and rela
 
 ## 2026-06-29 — Evaluator Promotion System
 - Added public-safe evaluator anchor cases, a dry-run command-judge runner, scoring and promotion gates, duplicate-coverage scanning, and local/CI validation for advisory evaluator promotion reports.
+- Promoted the evaluator-promotion decision-quality optimization target into the public fixture tree for repeatable crash, redaction, and recommendation checks.
 
 ## 2026-06-23 — Chief Of Staff Skill
 - Tightened `chief-of-staff` around a predictable control-loop, real local routes (`gws`, `ntn`, local UCL/Homelab workspaces), clearer approval boundary, and mode-specific output contracts.

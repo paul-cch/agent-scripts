@@ -87,6 +87,7 @@ Repo-specific rules go below that pointer. Do not copy the shared blocks into do
 `scripts/evaluator-promotion`
 - Validates evaluator anchor cases, runs dry-run command-judge evaluations, and prints sanitized promotion reports.
 - Public fixtures live under `evals/agent-promotion/cases/public`; private roots are opt-in via explicit case-root arguments.
+- The tracked decision-quality optimization target lives under `evals/agent-promotion/optimization/decision-quality/`.
 
 `scripts/test-evaluator-promotion`
 - Runs the evaluator-promotion Ruby tests, including fake-judge, coverage-scan, promotion-gate, and public-fixture integration cases.
