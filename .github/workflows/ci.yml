@@ -27,6 +27,9 @@ jobs:
               fi
             done
 
+      - name: Test evaluator promotion helpers
+        run: scripts/test-evaluator-promotion
+
       - name: Install video transcript downloader dependencies
         working-directory: skills/video-transcript-downloader
         run: npm ci

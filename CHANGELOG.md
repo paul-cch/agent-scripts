@@ -7,6 +7,9 @@ summary: Timeline of guardrail helper changes mirrored from Sweetistics and rela
 ## 2026-06-29 — Maintainer Release Gate
 - Updated PR and release guidance so generated code gets real review before landing, while unrelated open issues and PRs remain backlog rather than release blockers.
 
+## 2026-06-29 — Evaluator Promotion System
+- Added public-safe evaluator anchor cases, a dry-run command-judge runner, scoring and promotion gates, duplicate-coverage scanning, and local/CI validation for advisory evaluator promotion reports.
+
 ## 2026-06-23 — Chief Of Staff Skill
 - Tightened `chief-of-staff` around a predictable control-loop, real local routes (`gws`, `ntn`, local UCL/Homelab workspaces), clearer approval boundary, and mode-specific output contracts.
 

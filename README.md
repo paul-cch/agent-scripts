@@ -84,6 +84,13 @@ Repo-specific rules go below that pointer. Do not copy the shared blocks into do
 - Prints a read-only JSON report for Codex globals, expected tool binaries, broken skill symlinks, and local package setup.
 - Run before replacing global Codex wiring.
 
+`scripts/evaluator-promotion`
+- Validates evaluator anchor cases, runs dry-run command-judge evaluations, and prints sanitized promotion reports.
+- Public fixtures live under `evals/agent-promotion/cases/public`; private roots are opt-in via explicit case-root arguments.
+
+`scripts/test-evaluator-promotion`
+- Runs the evaluator-promotion Ruby tests, including fake-judge, coverage-scan, promotion-gate, and public-fixture integration cases.
+
 `scripts/install-codex-setup`
 - Reversible Codex-only installer. Dry runs with `scripts/install-codex-setup`, apply with `--apply`.
 - Backs up replaced `~/.codex` surfaces under `~/.codex/backups/agent-scripts/<timestamp>/`.

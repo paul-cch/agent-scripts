@@ -1,0 +1,139 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative "../lib/evaluator_promotion"
+require "json"
+require "optparse"
+
+module EvaluatorPromotionCli
+  module_function
+
+  def run(argv)
+    command = argv.shift
+
+    case command
+    when "validate"
+      validate(argv)
+    when "report"
+      report(argv)
+    when "draft"
+      draft(argv)
+    when "evaluate"
+      evaluate(argv)
+    else
+      warn usage
+      64
+    end
+  rescue EvaluatorPromotion::CaseLoader::ValidationError,
+         EvaluatorPromotion::PrivateRoots::MissingRootError,
+         EvaluatorPromotion::CaseDraft::DraftError,
+         ArgumentError => e
+    warn e.message
+    2
+  end
+
+  def validate(roots)
+    raise ArgumentError, "validate requires at least one case root" if roots.empty?
+
+    cases = EvaluatorPromotion::CaseLoader.load_roots(roots)
+    counts = cases.map(&:source_class).tally
+
+    puts "valid cases: #{cases.length}"
+    counts.sort.each { |source, count| puts "#{source}: #{count}" }
+    cases.each { |example| puts example.case_id }
+    0
+  end
+
+  def report(args)
+    path = args.first
+    raise ArgumentError, "report requires a JSON report path" unless path
+
+    puts EvaluatorPromotion::ReportWriter.compact_summary(EvaluatorPromotion::ReportWriter.read(path))
+    0
+  end
+
+  def draft(args)
+    case_id = args.shift
+    lane = args.shift
+    raise ArgumentError, "draft requires CASE_ID and LANE" unless case_id && lane
+
+    confidentiality_level = "private"
+    until args.empty?
+      flag = args.shift
+      case flag
+      when "--confidentiality"
+        confidentiality_level = args.shift || raise(ArgumentError, "--confidentiality requires a value")
+      else
+        raise ArgumentError, "unknown draft option: #{flag}"
+      end
+    end
+
+    puts EvaluatorPromotion::CaseDraft.template(
+      case_id: case_id,
+      lane: lane,
+      confidentiality_level: confidentiality_level,
+    )
+    0
+  end
+
+  def evaluate(args)
+    options = {
+      case_roots: [],
+      coverage_terms: [],
+      coverage_surfaces: [],
+      unavailable_tools: [],
+      timeout_seconds: 10,
+    }
+
+    OptionParser.new do |parser|
+      parser.on("--candidate NAME", "Candidate label for the report.") { |value| options[:candidate] = value }
+      parser.on("--case-root ROOT", "Public or private case root. Repeatable.") { |value| options[:case_roots] << value }
+      parser.on("--coverage-term TERM", "Candidate coverage term to scan for. Repeatable.") { |value| options[:coverage_terms] << value }
+      parser.on("--coverage-surface PATH", "Instruction or skill surface to scan. Repeatable.") { |value| options[:coverage_surfaces] << value }
+      parser.on("--judge-json JSON", "Judge command argv as a JSON string array.") { |value| options[:judge_argv] = parse_judge_json(value) }
+      parser.on("--timeout SECONDS", Float, "Judge timeout in seconds.") { |value| options[:timeout_seconds] = value }
+      parser.on("--unavailable-tool NAME", "Tool dependency that is unavailable. Repeatable.") { |value| options[:unavailable_tools] << value }
+      parser.on("--output PATH", "Write report JSON to PATH instead of stdout.") { |value| options[:output] = value }
+    end.parse!(args)
+
+    raise ArgumentError, "evaluate requires --candidate" unless options[:candidate]
+    raise ArgumentError, "evaluate requires at least one --case-root" if options[:case_roots].empty?
+    raise ArgumentError, "evaluate requires --judge-json" unless options[:judge_argv]
+
+    report = EvaluatorPromotion::Runner.evaluate(
+      candidate: options.fetch(:candidate),
+      case_roots: options.fetch(:case_roots),
+      judge_argv: options.fetch(:judge_argv),
+      timeout_seconds: options.fetch(:timeout_seconds),
+      coverage_terms: options.fetch(:coverage_terms),
+      coverage_surfaces: options.fetch(:coverage_surfaces),
+      unavailable_tools: options.fetch(:unavailable_tools),
+    )
+    output = JSON.pretty_generate(report)
+
+    if options[:output]
+      File.write(options[:output], "#{output}\n")
+    else
+      puts output
+    end
+
+    report.fetch("recommendation") == "recommended" ? 0 : 3
+  end
+
+  def usage
+    "usage: evaluator-promotion validate ROOT... | report REPORT.json | draft CASE_ID LANE [--confidentiality public|private] | evaluate --candidate NAME --case-root ROOT --judge-json JSON"
+  end
+
+  def parse_judge_json(value)
+    parsed = JSON.parse(value)
+    unless parsed.is_a?(Array) && parsed.all? { |item| item.is_a?(String) && !item.empty? }
+      raise ArgumentError, "--judge-json must be a JSON string array"
+    end
+
+    parsed
+  rescue JSON::ParserError => e
+    raise ArgumentError, "--judge-json is invalid JSON: #{e.message}"
+  end
+end
+
+exit EvaluatorPromotionCli.run(ARGV)

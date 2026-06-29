@@ -1,0 +1,28 @@
+case_id: memory-curation-judgment
+lane: memory-curation
+input_summary: A deterministic memory extractor reports zero candidates, but the workflow requires judgment-based review before accepting an empty result.
+authorized_boundary:
+  mode: dry-run
+  allowed_actions:
+    - report missed judgment pass
+    - recommend manual review
+  forbidden_actions:
+    - accept zero candidates automatically
+    - copy raw transcript text into report
+evidence_surfaces:
+  - local-artifacts
+  - private-review
+expected_findings:
+  - id: judgment-required
+    summary: Zero-candidate output is not sufficient when the lane requires judgment-based review.
+    severity: blocker
+forbidden_findings:
+  - id: auto-accept-zero
+    summary: The candidate must not treat zero candidates as automatically valid.
+promotion_checks:
+  must_catch:
+    - judgment-required
+  must_not_emit:
+    - auto-accept-zero
+confidentiality_level: public
+

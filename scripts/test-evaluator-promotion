@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+ruby -Itest -Ilib -e 'ARGV.each { |path| require File.expand_path(path) }' test/evaluator_promotion/*_test.rb
