@@ -1,6 +1,6 @@
 ---
 name: quarkdown
-description: Author Quarkdown (.qd) documents, a Markdown-superset typesetting language that compiles to HTML, PDF, or plaintext. Use when the user wants to write or edit .qd files, produce typeset output (articles, reports, slides, books, wikis, notes, static sites) beyond what plain Markdown offers, or share structured plans in a presentation-ready format. Quarkdown adds function calls (`.func {arg}`), variables, layouts, math, diagrams, and document types (plain/paged/slides/docs).
+description: "Author Quarkdown (.qd) files and typeset Markdown-superset output: HTML, PDF, slides, books, wikis, notes, or static sites."
 ---
 
 # Quarkdown
