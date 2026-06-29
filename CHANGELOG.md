@@ -4,6 +4,12 @@ summary: Timeline of guardrail helper changes mirrored from Sweetistics and rela
 
 # Changelog
 
+## 2026-06-29 — Maintainer Release Gate
+- Updated PR and release guidance so generated code gets real review before landing, while unrelated open issues and PRs remain backlog rather than release blockers.
+
+## 2026-06-23 — Chief Of Staff Skill
+- Tightened `chief-of-staff` around a predictable control-loop, real local routes (`gws`, `ntn`, local UCL/Homelab workspaces), clearer approval boundary, and mode-specific output contracts.
+
 ## 2026-06-14 — Chief Of Staff Skill
 - Added `chief-of-staff` as a maintainer-orchestrator-style control plane for autonomous-but-reversible worker/subagent coordination, daily briefs, open-loop tracking, project pulse checks, heartbeat monitoring, and follow-up drafts across Notion tasks, calendar, GitHub, Moodle via Homelab, Homelab/OpenClaw, UCL placement, dissertation, exams, and coursework.
 

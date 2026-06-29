@@ -18,16 +18,22 @@ Work style: friendly, concise, evidence-first, high-agency. Keep status updates 
 - Skill frontmatter: quote `description`; after SKILL.md edits, YAML-parse frontmatter before commit.
 - Read `~/Projects/agent-scripts/tools.md` when the tool catalog matters.
 - Confidentiality: never expose, quote, infer, or publish non-public organizational information, including internal project/model names, codenames, systems, infrastructure, processes, credentials, URLs, datasets, personnel details, or proprietary context. Treat it as confidential unless the user explicitly confirms it is public and approves release.
+- Carry clear, scoped work to the current authorized boundary: implement, verify, and report. Stop early only for missing access/credentials, destructive ambiguity, conflicting requirements, or an explicit pause.
 
 ## Routing
 
 - Screenshots/assets: newest PNG in `~/Desktop` or `~/Downloads`; verify UI before replacing.
 - Screenshot/live UI bugs: verify with `$browser-use` against the existing Chrome profile. `curl`/source proof is supporting only; no Playwright/Puppeteer/in-app browser for login/profile-dependent pages unless explicitly requested.
 - Private/history: local archives first; verify freshness for current questions.
+- Google-facing assistant work: prefer local `gws`; calendar agenda helper is `gws calendar +agenda --days 2 --timezone Europe/London --format json`.
+- Notion/Tasks mirrors: GitHub or local files stay canonical; Notion is bounded visibility. Use `ntn datasources query` with stable `External ID` checks before broad search.
+- Local Notion exports: use `ntn pages get <page-id>`; strip Notion frontmatter before saving content-only notes.
 - Secrets/API keys/live creds: use explicit known secret routes only; env only if already exported; never enumerate broad env/secrets.
 - 1Password is optional. If `op` is configured, use `$one-password`; otherwise ask for the narrow secret route.
 - New API keys: store in the configured secret manager when one exists; otherwise keep temp/env use scoped to the current task and ask before persistence.
-- OpenClaw/homelab: keep source, host/runtime, and live assistant surfaces distinct.
+- Native Mac UI actions: Computer Use MCP is available locally; inspect current app state before acting and verify after UI-changing steps.
+- Mac LaunchAgents/tunnels: live truth is `launchctl print gui/$(id -u)/<label>` plus focused `nc`/`curl` probes and receipts; a plist can exist while launchctl says service not found.
+- OpenClaw/homelab: keep source, host/runtime, and live assistant surfaces distinct; prefer `clawdbot@10.0.0.110` for runtime/container probes unless repo docs say otherwise.
 
 ## Project Defaults
 
@@ -46,6 +52,7 @@ Work style: friendly, concise, evidence-first, high-agency. Keep status updates 
 - Pasted GitHub issue/PR: first `git status -sb`; if dirty, yell; then `git push` + `git pull --ff-only`.
 - PR refs: use `gh pr view/diff`, not web search.
 - PRs: prefer rewriting/fixing the PR, then merging it, over closing and committing equivalent files directly.
+- PR quality: assume generated code may need real review and improvement before landing; complete rewrite is fine when cleaner.
 - Landing or merge requests are complete only when the PR reaches `MERGED`; `CLOSED` without merge is not done unless explicitly requested.
 - Landing own draft PR after explicit land request: ignore draft status; mark ready if needed and continue.
 - `fix ci`: consent to pull, commit, push; fix/rerun/watch until CI green.

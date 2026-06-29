@@ -1,0 +1,143 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "fileutils"
+require "open3"
+require "optparse"
+require "shellwords"
+require "time"
+
+HOST_DEFAULT = "agent-workstation"
+LOCAL_CODEX_HOME = File.expand_path(ENV.fetch("CODEX_HOME", File.join(Dir.home, ".codex")))
+REMOTE_CODEX_HOME_DEFAULT = ".codex"
+
+options = {
+  apply: false,
+  host: HOST_DEFAULT,
+  local_codex_home: LOCAL_CODEX_HOME,
+  remote_codex_home: REMOTE_CODEX_HOME_DEFAULT,
+}
+
+OptionParser.new do |parser|
+  parser.banner = "Usage: scripts/sync-codex-memories [--apply] [--host HOST]"
+  parser.on("--apply", "Import remote memory artifacts. Without this, only prints planned actions.") { options[:apply] = true }
+  parser.on("--host HOST", "SSH host alias to pull from (default: #{HOST_DEFAULT})") { |value| options[:host] = value }
+  parser.on("--local-codex-home PATH", "Local CODEX_HOME (default: #{LOCAL_CODEX_HOME})") { |value| options[:local_codex_home] = File.expand_path(value) }
+  parser.on("--remote-codex-home PATH", "Remote CODEX_HOME, relative to SSH home unless absolute (default: #{REMOTE_CODEX_HOME_DEFAULT})") { |value| options[:remote_codex_home] = value }
+end.parse!
+
+local_memories = File.join(options[:local_codex_home], "memories")
+local_rollouts = File.join(local_memories, "rollout_summaries")
+import_root = File.join(local_memories, "remote_imports", options[:host])
+notes_dir = File.join(local_memories, "extensions", "ad_hoc", "notes")
+stamp = Time.now.utc.strftime("%Y%m%dT%H%M%SZ")
+snapshot_dir = File.join(import_root, stamp)
+remote_memories = File.join(options[:remote_codex_home], "memories")
+remote_rollouts = File.join(remote_memories, "rollout_summaries")
+remote_raw = File.join(remote_memories, "raw_memories.md")
+remote_sqlite = File.join(options[:remote_codex_home], "memories_1.sqlite")
+
+def run!(*cmd)
+  stdout, stderr, process = Open3.capture3(*cmd)
+  return stdout if process.success?
+
+  warn stderr unless stderr.empty?
+  abort "failed: #{cmd.shelljoin}"
+end
+
+def ssh(host, command)
+  run!("ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8", host, command)
+end
+
+def rsync_source(host, path)
+  "#{host}:#{path.shellescape}"
+end
+
+def count_new_rollouts(host, remote_rollouts, local_rollouts)
+  remote_files = ssh(host, "test -d #{remote_rollouts.shellescape} && find #{remote_rollouts.shellescape} -maxdepth 1 -type f -name '*.md' -exec basename {} \\; | sort || true").lines.map(&:chomp)
+  return [0, []] if remote_files.empty?
+
+  local_files = Dir.glob(File.join(local_rollouts, "*.md")).map { |path| File.basename(path) }
+  new_files = remote_files - local_files
+  [new_files.length, new_files]
+end
+
+unless File.directory?(local_memories)
+  abort "local memories directory not found: #{local_memories}"
+end
+
+remote_summary = ssh(
+  options[:host],
+  [
+    "printf 'host=%s user=%s home=%s\\n' \"$(hostname)\" \"$(id -un)\" \"$HOME\"",
+    "test -d #{remote_memories.shellescape} && echo memories=present || echo memories=missing",
+    "test -d #{remote_rollouts.shellescape} && find #{remote_rollouts.shellescape} -maxdepth 1 -type f -name '*.md' | wc -l | awk '{print \"rollouts=\"$1}' || echo rollouts=0",
+    "test -f #{remote_raw.shellescape} && echo raw_memories=present || echo raw_memories=missing",
+    "test -f #{remote_sqlite.shellescape} && echo sqlite=present || echo sqlite=missing",
+  ].join("; ")
+)
+
+new_count, new_files = count_new_rollouts(options[:host], remote_rollouts, local_rollouts)
+
+if !options[:apply]
+  warn "Dry run. Re-run with --apply to import remote Codex memory artifacts."
+  puts remote_summary
+  puts "local memories: #{local_memories}"
+  puts "new rollout summaries: #{new_count}"
+  new_files.first(20).each { |name| puts "  #{name}" }
+  puts "  ..." if new_files.length > 20
+  puts "would copy new rollout summaries into #{local_rollouts}"
+  puts "would snapshot remote raw_memories.md into #{snapshot_dir}"
+  puts "would not merge or overwrite memories_1.sqlite"
+  exit 0
+end
+
+FileUtils.mkdir_p(local_rollouts)
+FileUtils.mkdir_p(snapshot_dir)
+FileUtils.mkdir_p(notes_dir)
+
+before = Dir.glob(File.join(local_rollouts, "*.md")).map { |path| File.basename(path) }
+
+run!(
+  "rsync",
+  "-a",
+  "--ignore-existing",
+  "--include", "*/",
+  "--include", "*.md",
+  "--exclude", "*",
+  "#{rsync_source(options[:host], remote_rollouts)}/",
+  "#{local_rollouts}/"
+)
+
+run!(
+  "rsync",
+  "-a",
+  rsync_source(options[:host], remote_raw),
+  File.join(snapshot_dir, "raw_memories.md")
+)
+
+after = Dir.glob(File.join(local_rollouts, "*.md")).map { |path| File.basename(path) }
+imported = after - before
+
+if imported.any?
+  note_path = File.join(notes_dir, "#{stamp.downcase}-#{options[:host]}-codex-memory-import.md")
+  File.write(
+    note_path,
+    [
+      "# Remote Codex memory import: #{options[:host]}",
+      "",
+      "- Imported #{imported.length} rollout summaries from `#{options[:host]}:#{remote_rollouts}` into local `#{local_rollouts}`.",
+      "- Stored the remote `raw_memories.md` snapshot at `#{File.join(snapshot_dir, "raw_memories.md")}`.",
+      "- Did not merge or overwrite `memories_1.sqlite`; SQLite memory state remains host-local.",
+      "- Imported files:",
+      *imported.sort.map { |name| "  - `#{name}`" },
+      "",
+    ].join("\n")
+  )
+end
+
+puts remote_summary
+puts "imported rollout summaries: #{imported.length}"
+puts "snapshot: #{File.join(snapshot_dir, "raw_memories.md")}"
+puts "receipt: #{note_path}" if imported.any?
+puts "sqlite: left host-local; no merge attempted"

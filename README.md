@@ -93,6 +93,10 @@ Repo-specific rules go below that pointer. Do not copy the shared blocks into do
 - Copies `docs/slash-commands/*.md` into `~/.codex/prompts` (excluding `README.md`).
 - On apply, backs up any changed destination prompt before replacing it.
 
+`scripts/sync-codex-memories`
+- Pulls remote Codex memory artifacts from an SSH host, defaulting to `agent-workstation`.
+- Imports new rollout summaries into local `~/.codex/memories/rollout_summaries`, snapshots remote `raw_memories.md`, and leaves SQLite memory state host-local.
+
 ## Paul Codex Install
 
 Preflight:
