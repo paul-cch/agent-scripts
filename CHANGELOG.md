@@ -4,6 +4,12 @@ summary: Timeline of guardrail helper changes mirrored from Sweetistics and rela
 
 # Changelog
 
+## 2026-07-02 — Maintainer Orchestrator Boundaries
+- Tightened `maintainer-orchestrator` around one Codex app worker per repository, read-only collaboration subagents, checkout preservation, active waits, owner decision queues, policy capture, dependency freshness, and release proposal proof.
+
+## 2026-06-30 — Codex Workflow Skill
+- Added `codex-workflow` for coordinating worker threads, heartbeats, `/goal` completion gates, PR review follow-up, scheduled check-ins, and ready-to-merge closeout.
+
 ## 2026-06-29 — Maintainer Release Gate
 - Updated PR and release guidance so generated code gets real review before landing, while unrelated open issues and PRs remain backlog rather than release blockers.
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex Workflow"
+  short_description: "Coordinate Codex worker threads and goals"
+  default_prompt: "Use $codex-workflow to coordinate worker threads, heartbeats, and /goal completion gates until the work is ready to merge."

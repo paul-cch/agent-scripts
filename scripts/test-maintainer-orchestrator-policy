@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+skill = File.read(File.expand_path("../skills/maintainer-orchestrator/SKILL.md", __dir__))
+metadata = File.read(File.expand_path("../skills/maintainer-orchestrator/agents/openai.yaml", __dir__))
+
+requirements = {
+  "Codex app workers only" => "a worker is an owned Codex app thread, not a collaboration subagent",
+  "one project thread per repository" => "Use one owned project thread per repository",
+  "no project task fan-out" => "task threads",
+  "support-only subagents" => "Use collaboration subagents only for read-only orchestration support",
+  "subagent mutation ban" => "Collaboration subagents must never edit repository files",
+  "preservation-first recovery" => "Snapshot and preserve its state, patches, refs, logs, and evidence",
+  "text is not capability" => "Thread prompts do not grant capabilities",
+  "permission profile check" => "verify its effective permission profile",
+  "repository synchronization" => "Never pull, switch, stash, rebase, merge, reset, clean, delete, or overwrite a dirty or non-default checkout",
+  "active waits" => "Keep a worker turn active until its assigned work reaches a terminal state",
+  "prepared owner queue" => "Maintain an ordered owner-question queue and ask one decision at a time",
+  "product policy capture" => "Product Policy Capture",
+  "dependency freshness before closeout" => "Always perform a dependency-freshness check before closing a repository work batch or proposing a release",
+  "release proposal shape" => "Every proposal must include",
+}
+
+missing = requirements.reject { |_label, text| skill.include?(text) }
+abort "Missing maintainer-orchestrator policy: #{missing.keys.join(', ')}" unless missing.empty?
+
+forbidden = [
+  "Peter",
+  "steipete",
+  "non-majority-repositories",
+  "30 concurrent",
+  "silent issue close",
+  "root → project → task",
+]
+abort "Peter-specific maintainer policy leaked in" if forbidden.any? { |text| skill.include?(text) || metadata.include?(text) }
+abort "Stale maintainer-orchestrator default prompt" unless metadata.include?("one Codex app thread per repository") && metadata.include?("collaboration subagents read-only")
+
+puts "Validated maintainer-orchestrator policy."
