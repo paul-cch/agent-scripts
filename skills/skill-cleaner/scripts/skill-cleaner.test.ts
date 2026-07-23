@@ -6,6 +6,7 @@ import test from "node:test";
 
 import {
   compactDescription,
+  configuredModel,
   discoverRoots,
   parseLiveSkillsPrompt,
   plainLogSkillReads,
@@ -13,10 +14,31 @@ import {
   usageEvidence,
 } from "./skill-cleaner.ts";
 
+test("reads basic and literal top-level Codex model strings and reports fallback", (context) => {
+  const temp = fs.mkdtempSync(path.join(os.tmpdir(), "skill-cleaner-model-"));
+  context.after(() => fs.rmSync(temp, { recursive: true, force: true }));
+  const codex = path.join(temp, ".codex");
+  fs.mkdirSync(codex);
+  const config = path.join(codex, "config.toml");
+
+  fs.writeFileSync(config, 'model = "gpt-basic" # current\\n[profiles.demo]\\nmodel = "ignored"\\n');
+  assert.deepEqual(configuredModel(temp), { name: "gpt-basic", source: config });
+
+  fs.writeFileSync(config, "model = 'gpt-literal#safe' # comment\\n");
+  assert.deepEqual(configuredModel(temp), { name: "gpt-literal#safe", source: config });
+
+  fs.writeFileSync(config, "[profiles.demo]\\nmodel = 'not-top-level'\\n");
+  assert.deepEqual(configuredModel(temp), {
+    name: "gpt-5.5",
+    source: "fallback:no-readable-codex-model",
+  });
+});
+
 test("limits root discovery to explicitly supplied roots", (context) => {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), "skill-cleaner-roots-"));
   context.after(() => fs.rmSync(temp, { recursive: true, force: true }));
   const defaultRoots = [
+    path.join(temp, ".agents/skills"),
     path.join(temp, ".codex/skills"),
     path.join(temp, ".codex/plugins/cache"),
     path.join(temp, "Projects/agent-scripts/skills"),

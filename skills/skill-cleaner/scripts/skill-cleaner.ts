@@ -35,6 +35,7 @@ type Usage = {
 
 type Budget = {
   model: string;
+  modelSource: string;
   contextTokens: number;
   contextSource: string;
   effectivePercent: number | null;
@@ -77,7 +78,9 @@ const json = args.has("--json");
 const includeAll = args.has("--all");
 const rootOnly = args.has("--root-only");
 const noLive = args.has("--no-live") || rootOnly;
-const model = argValue("--model", "gpt-5.5");
+const configuredModelSelection = configuredModel();
+const model = argValue("--model", configuredModelSelection.name);
+const modelSource = args.has("--model") ? "--model" : configuredModelSelection.source;
 const budgetPercent = Number(argValue("--budget-percent", "2"));
 const contextTokensOverride = argValue("--context-tokens", "");
 const charsPerToken = Number(argValue("--chars-per-token", "4"));
@@ -92,6 +95,56 @@ const extraRoots = process.argv
 
 function expandHome(input: string): string {
   return input.replace(/^~(?=$|\/)/, home);
+}
+
+function stripTomlComment(rawLine: string): string {
+  let quote = "";
+  let escaped = false;
+  for (let index = 0; index < rawLine.length; index++) {
+    const char = rawLine[index];
+    if (quote === '"' && escaped) {
+      escaped = false;
+      continue;
+    }
+    if (quote === '"' && char === "\\") {
+      escaped = true;
+      continue;
+    }
+    if (quote) {
+      if (char === quote) quote = "";
+      continue;
+    }
+    if (char === '"' || char === "'") {
+      quote = char;
+      continue;
+    }
+    if (char === "#") return rawLine.slice(0, index);
+  }
+  return rawLine;
+}
+
+export function configuredModel(baseHome = home): { name: string; source: string } {
+  const config = path.join(baseHome, ".codex/config.toml");
+  const fallback = { name: "gpt-5.5", source: "fallback:no-readable-codex-model" };
+  if (!exists(config)) return fallback;
+  try {
+    for (const rawLine of fs.readFileSync(config, "utf8").split(/\r?\n/)) {
+      const line = stripTomlComment(rawLine).trim();
+      if (line.startsWith("[")) break;
+      const match = /^model\s*=\s*(.+)$/.exec(line);
+      if (!match) continue;
+      const value = match[1].trim();
+      let name = "";
+      if (/^"(?:[^"\\]|\\.)*"$/.test(value)) {
+        name = JSON.parse(value);
+      } else {
+        const literal = /^'([^']*)'$/.exec(value);
+        if (literal) name = literal[1];
+      }
+      if (name) return { name, source: config };
+    }
+  } catch {}
+  return fallback;
 }
 
 function exists(input: string): boolean {
@@ -153,7 +206,7 @@ function codexModelContext(modelName: string): {
     } catch {}
   }
 
-  return { tokens: 272_000, source: "fallback:gpt-5.5", effectivePercent: 95 };
+  return { tokens: 272_000, source: `fallback:${modelName}`, effectivePercent: 95 };
 }
 
 function walkFiles(root: string, predicate: (file: string) => boolean, maxDepth = 8): string[] {
@@ -517,10 +570,11 @@ export function discoverRoots(
   const roots = providedRoots.map((root) => root.replace(/^~(?=$|\/)/, baseHome));
   const candidates = exclusive
     ? roots
-    : [
-        path.join(baseHome, ".codex/skills"),
-        path.join(baseHome, ".codex/plugins/cache"),
-        path.join(baseHome, "Projects/agent-scripts/skills"),
+      : [
+          path.join(baseHome, ".codex/skills"),
+          path.join(baseHome, ".codex/plugins/cache"),
+          path.join(baseHome, ".agents/skills"),
+          path.join(baseHome, "Projects/agent-scripts/skills"),
         ...roots,
       ];
   candidates.forEach((root) => {
@@ -1037,6 +1091,7 @@ function skillBudget(skills: Skill[], metadataOverheadTokens = 0): Budget {
   const budgetedTokens = codexCost.budgetedTokens + metadataOverheadTokens;
   return {
     model,
+    modelSource,
     contextTokens: context.tokens,
     contextSource: context.source,
     effectivePercent: context.effectivePercent,
@@ -1144,6 +1199,7 @@ function render(
 
   lines.push("## Skill Budget", "");
   lines.push(`model: ${budget.model}`);
+  lines.push(`model_source: ${budget.modelSource}`);
   lines.push(`context_tokens: ${formatNumber(budget.contextTokens)}`);
   lines.push(`context_source: ${budget.contextSource}`);
   lines.push(`${budget.budgetPercent}%_budget_tokens: ${formatNumber(budget.budgetTokens)}`);

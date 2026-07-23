@@ -45,6 +45,9 @@ Work style: friendly, concise, evidence-first, high-agency. Keep status updates 
 - Inline code comments: brief notes for tricky, bug-prone, or previously buggy logic.
 - New deps: quick health check for recent releases/commits/adoption.
 - Codex-only setup: this repo may own `~/.codex/AGENTS.md`, `~/.codex/skills`, and `~/.codex/prompts`. Do not alter `~/.claude/*` from this workflow.
+- Codex/T3 delegation: use native worker/collaboration tools; never recursively invoke `codex exec` for hands-on self-delegation.
+- New substantial work order: use a fresh worker with goal, repo/paths, constraints, non-goals, exact proof, and output shape. Reuse that worker only for fixes to the same order.
+- Durable worker lanes need a checkable goal and visible identity. The owner reads the diff and reruns focused proof; after two failed repair rounds, take over or narrow the task.
 
 ## PR / CI
 
