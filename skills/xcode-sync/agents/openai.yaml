@@ -1,0 +1,4 @@
+interface:
+  display_name: "Xcode Sync"
+  short_description: "Verify and synchronize Xcode build toolchains"
+  default_prompt: "Use $xcode-sync to inventory and safely synchronize Xcode builds across my approved development hosts."

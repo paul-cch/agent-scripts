@@ -4,6 +4,13 @@ summary: Timeline of guardrail helper changes mirrored from Sweetistics and rela
 
 # Changelog
 
+## 2026-07-23 — Paul-Specific Upstream Integration
+- Added `estate-maintenance`, `xcode-sync`, and `codex-huge-context` with read-only defaults, explicit mutation gates, fixture-tested helpers, and no Peter-specific host, account, or provider assumptions.
+- Ported live-inventory and exclusive-root improvements to `skill-cleaner`, including Paul’s `~/.agents/skills` root and configured-model lookup.
+- Hardened the browser profile helper and added CI coverage for skill validation, browser builds/tests, skill-cleaner, estate audits, Xcode inventory, and context preflight.
+- Backported generic macOS release correctness fixes without adopting upstream-specific accounts, paths, or credential assumptions.
+- Added native Codex/T3 work-order rules without installing the Claude-only `codex-first` skill.
+
 ## 2026-06-14 — Chief Of Staff Skill
 - Added `chief-of-staff` as a maintainer-orchestrator-style control plane for autonomous-but-reversible worker/subagent coordination, daily briefs, open-loop tracking, project pulse checks, heartbeat monitoring, and follow-up drafts across Notion tasks, calendar, GitHub, Moodle via Homelab, Homelab/OpenClaw, UCL placement, dissertation, exams, and coursework.
 

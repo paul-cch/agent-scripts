@@ -279,6 +279,7 @@ SCRIPT
 mac_release_version_from_zip() {
   local zip_name=${1##*/} zip_base
   zip_base=${zip_name%.zip}
+  zip_base=${zip_base%.app}
   if [[ "$zip_base" =~ ([0-9]+([.][0-9]+){1,2}([-.][0-9A-Za-z.]+)?)$ ]]; then
     printf '%s\n' "${BASH_REMATCH[1]}"
   else
@@ -417,7 +418,8 @@ probe_sparkle_key() {
     sign_update --ed-key-file "$keyfile" -p "$tmp" >/dev/null
   else
     mac_release_sparkle_account_args account_args
-    sign_update "${account_args[@]}" -p "$tmp" >/dev/null
+    # ${arr[@]+...} keeps empty arrays safe under set -u on macOS bash 3.2.
+    sign_update ${account_args[@]+"${account_args[@]}"} -p "$tmp" >/dev/null
   fi
   rm -f "$tmp"
 }
@@ -455,7 +457,11 @@ mac_release_public_key_for_source() {
   if [[ "$source" == "keychain" ]]; then
     local account_args=()
     mac_release_sparkle_account_args account_args
-    generate_keys "${account_args[@]}" -p
+    if [[ "${#account_args[@]}" -gt 0 ]]; then
+      generate_keys "${account_args[@]}" -p
+    else
+      generate_keys -p
+    fi
   else
     mac_release_public_key_from_file "$source"
   fi
@@ -628,9 +634,11 @@ if not first:
 header = first.group(1)
 if "Unreleased" in header:
     raise SystemExit("Top changelog section still marked Unreleased")
-if not (header.startswith(f"{version} ") or header.startswith(f"{version} -") or header.startswith(f"{version} —")):
+version_token = rf"(?:{re.escape(version)}|\[{re.escape(version)}\])"
+version_header = re.compile(rf"^{version_token}(?:\s+.*)?$")
+if not version_header.fullmatch(header):
     raise SystemExit(f"Top changelog section '{header}' does not match version {version}")
-if not re.search(rf"^##\s+{re.escape(version)}(\s|$)", text, re.M):
+if not re.search(rf"^##\s+{version_token}(?:\s|$)", text, re.M):
     raise SystemExit(f"No section found for version {version}")
 PY
 }
@@ -766,13 +774,24 @@ verify_enclosure() {
     sign_update --verify "$tmp" "$sig" --ed-key-file "$key_file"
   else
     mac_release_sparkle_account_args account_args
-    sign_update "${account_args[@]}" --verify "$tmp" "$sig"
+    # ${arr[@]+...} keeps empty arrays safe under set -u on macOS bash 3.2.
+    sign_update ${account_args[@]+"${account_args[@]}"} --verify "$tmp" "$sig"
+  fi
+}
+
+verify_distribution_policy() {
+  local app=${1:?"app bundle required"}
+  if command -v syspolicy_check >/dev/null 2>&1; then
+    syspolicy_check distribution "$app"
+  else
+    require_bin spctl
+    spctl --assess --type execute --verbose "$app"
   fi
 }
 
 verify_codesign_from_enclosure() {
   local url=${1:?"enclosure URL required"}
-  require_bin curl ditto codesign spctl
+  require_bin curl ditto codesign
   local tmp_dir tmp_zip app
   tmp_dir=$(mktemp -d /tmp/sparkle-verify.XXXX)
   trap 'rm -rf "${tmp_dir:-}"' RETURN
@@ -782,7 +801,7 @@ verify_codesign_from_enclosure() {
   app=$(find "$tmp_dir" -maxdepth 2 -name "${APP_NAME}.app" -not -path "*/__MACOSX/*" | head -n 1)
   [[ -n "$app" ]] || mac_release_die "No ${APP_NAME}.app found in enclosure $url"
   codesign --verify --deep --strict --verbose=2 "$app"
-  spctl --assess --type execute --verbose "$app"
+  verify_distribution_policy "$app"
   if command -v stapler >/dev/null 2>&1; then
     stapler validate "$app"
   fi
@@ -1454,14 +1473,14 @@ mac_release_release() {
   local tag_args=() push_tag_args=()
   [[ "${MAC_RELEASE_TAG_FORCE:-1}" == "1" ]] && tag_args+=(-f) && push_tag_args+=(-f)
   if [[ "${MAC_RELEASE_TAG_SIGNED:-0}" == "1" ]]; then
-    git tag -s "${tag_args[@]}" -m "${APP_NAME} ${MARKETING_VERSION}" "$TAG"
+    git tag -s ${tag_args[@]+"${tag_args[@]}"} -m "${APP_NAME} ${MARKETING_VERSION}" "$TAG"
   elif [[ "${MAC_RELEASE_TAG_ANNOTATED:-1}" == "1" ]]; then
-    git tag "${tag_args[@]}" -m "${APP_NAME} ${MARKETING_VERSION}" "$TAG"
+    git tag ${tag_args[@]+"${tag_args[@]}"} -m "${APP_NAME} ${MARKETING_VERSION}" "$TAG"
   else
-    git tag "${tag_args[@]}" "$TAG"
+    git tag --no-sign ${tag_args[@]+"${tag_args[@]}"} "$TAG"
   fi
   tag_created=1
-  git push "${push_tag_args[@]}" origin "$TAG"
+  git push ${push_tag_args[@]+"${push_tag_args[@]}"} origin "$TAG"
   tag_pushed=1
   gh release create "$TAG" --repo "$MAC_RELEASE_REPO" --title "${APP_NAME} ${MARKETING_VERSION}" --notes-file "$notes_md"
   release_created=1

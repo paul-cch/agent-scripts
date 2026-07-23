@@ -1,0 +1,4 @@
+interface:
+  display_name: "Estate Maintenance"
+  short_description: "Audit and maintain Homelab and Mac surfaces"
+  default_prompt: "Use $estate-maintenance to audit my estate by proof surface and prepare only explicitly approved changes."

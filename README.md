@@ -39,6 +39,11 @@ skills/discrawl -> ../../discrawl/.agents/skills/discrawl
 
 Current symlinked repo-owned skills include `birdclaw`, `discrawl`, `gog`, `imsg`, `slacrawl`, `wacli`, and `wacrawl`.
 
+Paul-specific operational skills include:
+- `estate-maintenance`: read-only-first Homelab/Mac inventory with separate proof surfaces and approved mutation gates.
+- `xcode-sync`: exact Xcode build provenance, compatibility, rollback, selection, and first-launch proof.
+- `codex-huge-context`: read-only provider/context/compaction/catalogue preflight; it never enables a provider by loading.
+
 ## Agent Instructions
 
 Shared hard rules live in `AGENTS.MD`.
@@ -67,7 +72,7 @@ Repo-specific rules go below that pointer. Do not copy the shared blocks into do
 
 `scripts/validate-skills`
 - Checks every `skills/*/SKILL.md`.
-- Verifies YAML front matter plus required `name` and `description`.
+- Verifies UTF-8 YAML front matter plus required `name` and `description`.
 - Enable as a local hook with `git config core.hooksPath hooks`.
 
 `scripts/docs-list.ts`
