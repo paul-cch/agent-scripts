@@ -13,7 +13,7 @@ Use for Cloudflare Wrangler CLI work: deploys, tails, KV/R2/D1/Queues/Workers, s
 - Prefer repo wrapper: `npm exec --yes --package wrangler -- wrangler ...` unless repo has its own script.
 - `wrangler whoami` before account-sensitive work.
 - ReleaseBar prod account: `Steipete@gmail.com's Account` / `de09342a728de2c25c85cc6b34d68739`.
-- OpenClaw projects: use OpenClaw account / `91b59577e757131d68d55a471fe32aca`. Ask if unsure.
+- OpenClaw projects: use OpenClaw account / `5bc6a02f8c909f0bea89d78ae699a36a`. Ask if unsure.
 
 ## Pitfalls
 
