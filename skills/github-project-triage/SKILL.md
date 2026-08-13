@@ -132,7 +132,7 @@ Fallback if this skill checkout lacks the helper:
 ~/Projects/clawdbot/.agents/skills/openclaw-pr-maintainer/scripts/github-activity.sh --repo <owner/repo> --global <login>
 ```
 
-Also use `github-author-context` when a PR needs deeper trust judgment, especially for OpenClaw, security-sensitive changes, broad PRs, new accounts, or unusual author behavior. Prefer existing contributor notes first:
+For deeper trust judgment, use the GitHub activity helper and existing contributor notes. Do not depend on a separate author-context skill or infer identity, company, or team signals:
 
 ```bash
 ~/Projects/maintainers/scripts/clawtributors find github <login>
