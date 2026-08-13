@@ -284,7 +284,7 @@ In release reporting, list actual release blockers reviewed and their resolution
 Use the repository's release docs and matching skill:
 
 - npm packages: use `npm`;
-- macOS apps: use `release-mac-app`;
+- macOS apps: follow the repository's release guide and tooling;
 - other projects: use established repo scripts/workflows.
 
 Before release:
