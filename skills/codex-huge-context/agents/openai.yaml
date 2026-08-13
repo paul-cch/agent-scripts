@@ -1,4 +1,0 @@
-interface:
-  display_name: "Codex Huge Context"
-  short_description: "Audit large-context Codex provider safety"
-  default_prompt: "Use $codex-huge-context to audit a direct-provider Codex context configuration without changing it."

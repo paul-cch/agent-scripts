@@ -1,8 +1,11 @@
 # Agent Scripts
 
-Paul's canonical Codex agent setup: shared instructions, reusable skills, slash-command prompts, and portable helpers for local Mac, UCL, and OpenClaw/homelab work.
+> **Archive.** [Fleet](https://github.com/paul-cch/fleet) is the active source
+> for shared skills, generated agent instructions, and machine installation.
+> Do not use this repository to install or manage Codex globals. The remaining
+> material is retained as migration history only.
 
-This repo is the canonical place for:
+Historically, this repository supplied:
 - `AGENTS.MD`: shared hard rules for Codex/Claude-style agents
 - `skills/`: reusable workflow skills, including repo-owned skills exposed by symlink
 - `scripts/`: dependency-light helpers used across projects
@@ -26,7 +29,7 @@ Rules:
 - Validate after edits: `scripts/validate-skills`.
 - Quote `description` in front matter.
 
-Global Codex discovery points here:
+Historical global Codex discovery pointed here:
 - `~/.codex/skills -> ~/Projects/agent-scripts/skills`
 - Use `~/.claude/` only when explicitly requested; this migration is Codex-only.
 
@@ -44,16 +47,17 @@ Paul-specific operational skills include:
 - `xcode-sync`: exact Xcode build provenance, compatibility, rollback, selection, and first-launch proof.
 - `codex-huge-context`: read-only provider/context/compaction/catalogue preflight; it never enables a provider by loading.
 
-## Agent Instructions
+## Historical Agent Instructions
 
 Shared hard rules live in `AGENTS.MD`.
 
-Global setup:
+Historical global setup:
 - `~/.codex/AGENTS.md -> ~/Projects/agent-scripts/AGENTS.MD`
 - `~/.codex/skills -> ~/Projects/agent-scripts/skills`
 - `~/.codex/prompts` mirrors `docs/slash-commands/`
 
-This repo is Paul-owned after migration. Keep `upstream` pointed at `steipete/agent-scripts` for reference, and keep `origin` pointed at Paul's fork.
+This archive retains the pre-Fleet migration material. Fleet owns the active
+source and installation surface.
 
 Downstream repos should use a pointer-style `AGENTS.MD`:
 
@@ -110,7 +114,7 @@ Repo-specific rules go below that pointer. Do not copy the shared blocks into do
 - Pulls remote Codex memory artifacts from an SSH host, defaulting to `agent-workstation`.
 - Imports new rollout summaries into local `~/.codex/memories/rollout_summaries`, snapshots remote `raw_memories.md`, and leaves SQLite memory state host-local.
 
-## Paul Codex Install
+## Historical Codex Installation
 
 Preflight:
 
@@ -128,9 +132,9 @@ scripts/sync-prompts --apply
 scripts/audit-machine-setup > /tmp/agent-scripts-after.json
 ```
 
-## Syncing
+## Historical Syncing
 
-Treat this repo as canonical for shared agent rules and portable helper scripts.
+Treat Fleet as canonical for shared agent rules and portable helper scripts.
 
 When syncing downstream repos:
 - Pull latest here first.

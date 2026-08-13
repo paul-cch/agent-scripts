@@ -17,8 +17,7 @@ gh pr view <n> --json number,title,state,author,body,comments,reviews,files,comm
 gh pr diff <n> --patch
 ```
 
-For PRs, collect author context by default unless the author is Paul or the repo owner account. Use the local workflow in `~/Projects/agent-scripts/skills/github-author-context/SKILL.md` and include a short `Author context:` block near the top of the review when the author is an external contributor.
-After merge/rejection/close/review, use that same author-context workflow to append a contributor note only when the interaction creates durable future-review signal.
+For PRs, report author context only when a directly relevant public GitHub source supports it. Do not infer identity, trust, company, or team signals, and do not depend on a local companion workflow.
 
 For repo-local review, also inspect:
 

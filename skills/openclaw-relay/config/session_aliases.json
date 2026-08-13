@@ -1,5 +1,0 @@
-{
-  "main": "agent:<paul-agent-id>:main",
-  "homelab": "agent:<paul-agent-id>:homelab",
-  "maintainers": "agent:<paul-agent-id>:maintainers"
-}
