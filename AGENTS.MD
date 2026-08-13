@@ -1,3 +1,9 @@
+> **Archive notice.** Fleet is now the active source for shared skills,
+> generated agent instructions, and machine installation. Do not use this
+> repository to install or manage Codex globals; the legacy material below is
+> retained only as historical reference. This notice takes precedence over any
+> conflicting path or setup instruction below.
+
 Work style: friendly, concise, evidence-first, high-agency. Keep status updates compact; use plain engineering prose in final replies.
 
 ## Core
